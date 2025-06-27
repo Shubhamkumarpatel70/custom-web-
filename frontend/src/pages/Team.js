@@ -107,7 +107,7 @@ function Team() {
       </section>
 
       {/* Team Members */}
-      <section className="team-members-section section">
+      <section className="team-members-section section" style={{ marginTop: '160px' }}>
         <div className="container">
           <div className="section-header">
             <h2 className="section-title">Our Talented Team</h2>
@@ -115,51 +115,35 @@ function Team() {
               Meet the people behind Custom Web who make your projects successful
             </p>
           </div>
-          <div className="team-grid">
+          <div className="services-grid">
             {team.map((member, index) => (
-              <div key={member.name} className="team-card card animate-fade-in-up">
-                <div className="team-card-header">
-                  <div className="member-avatar" style={{ background: member.color }}>
+              <div key={member.name} className="service-card card animate-fade-in-up" style={{ boxShadow: '0 8px 32px rgba(46,204,113,0.13), 0 2px 16px rgba(0,0,0,0.13)', background: 'linear-gradient(135deg, rgba(35,39,47,0.85) 60%, rgba(46,204,113,0.08) 100%)', padding: '2.5rem 1.7rem 2rem 1.7rem', borderRadius: '1.5rem' }}>
+                <div className="service-header" style={{ justifyContent: 'flex-start', gap: '1.2rem' }}>
+                  <div className="service-icon" style={{ background: `${member.color}20`, color: member.color, fontWeight: 700, fontSize: '2.3rem', width: '82px', height: '82px', borderRadius: '50%', border: `4px solid ${member.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.7rem', boxShadow: `0 0 0 6px rgba(46,204,113,0.10)` }}>
                     <span>{member.name.split(' ').map(n => n[0]).join('')}</span>
                   </div>
-                  <div className="member-stats">
-                    <div className="stat">
-                      <span className="stat-value">{member.experience}</span>
-                      <span className="stat-label">Experience</span>
-                    </div>
-                    <div className="stat">
-                      <span className="stat-value">{member.projects}</span>
-                      <span className="stat-label">Completed</span>
-                    </div>
-                  </div>
                 </div>
-                
-                <div className="team-card-content">
-                  <h3 className="member-name" style={{ color: member.color }}>
+                <div className="service-content" style={{ textAlign: 'left', paddingLeft: '0.2em', paddingRight: '0.2em' }}>
+                  <h3 className="service-title" style={{ color: member.color, fontWeight: 700, fontSize: '1.18rem', marginBottom: '0.3rem' }}>
                     {member.name}
                   </h3>
-                  <p className="member-role">{member.role}</p>
-                  <p className="member-bio">{member.bio}</p>
-                  
-                  <div className="member-skills">
-                    <h4>Expertise:</h4>
-                    <div className="skills-list">
+                  <p className="service-description" style={{ color: '#A0AEC0', fontWeight: 600, fontSize: '1.05rem', marginBottom: '0.3rem' }}>{member.role}</p>
+                  <p className="service-description" style={{ color: '#E5E7EB', fontSize: '1rem', marginBottom: '0.8rem' }}>{member.bio}</p>
+                  <div className="service-features" style={{ marginTop: '1.1rem' }}>
+                    <h4 style={{ fontWeight: 700, fontSize: '1.15rem', marginBottom: '0.3rem', color: '#fff' }}>Expertise:</h4>
+                    <ul style={{ paddingLeft: '1.1em', margin: 0 }}>
                       {member.skills.map((skill, idx) => (
-                        <span key={idx} className="skill-tag" style={{ borderColor: member.color, color: member.color }}>
-                          {skill}
-                        </span>
+                        <li key={idx} style={{ marginBottom: '0.3rem', display: 'flex', alignItems: 'center' }}>
+                          <span className="feature-check" style={{ color: member.color, marginRight: '0.5rem', fontWeight: 700 }}>
+                            ✓
+                          </span>
+                          <span style={{ color: '#E5E7EB', fontSize: '0.98rem' }}>{skill}</span>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   </div>
                 </div>
-
-                <div className="team-card-footer">
-                  <Link to="/contact" className="contact-member-btn" style={{ borderColor: member.color, color: member.color }}>
-                    Get in Touch
-                  </Link>
-                </div>
-
-                <div className="member-highlight" style={{ background: member.color }}></div>
+                <div className="service-highlight" style={{ background: member.color }}></div>
               </div>
             ))}
           </div>
@@ -233,16 +217,14 @@ function Team() {
       <style jsx>{`
         .team-page {
           background: #181A20;
+          color: #E5E7EB;
           min-height: 100vh;
         }
 
         /* Hero Section */
         .team-hero {
-          position: relative;
-          min-height: 80vh;
-          display: flex;
-          align-items: center;
-          overflow: hidden;
+          padding: 60px 0 30px 0;
+          text-align: center;
         }
 
         .hero-background {
@@ -280,16 +262,14 @@ function Team() {
           position: relative;
           z-index: 1;
           text-align: center;
-          color: #E5E7EB;
           max-width: 800px;
           margin: 0 auto;
         }
 
         .hero-title {
-          font-size: clamp(2.5rem, 6vw, 4rem);
+          font-size: 2.7rem;
           font-weight: 800;
-          margin-bottom: 1.5rem;
-          line-height: 1.1;
+          margin-bottom: 0.7rem;
         }
 
         .gradient-text {
@@ -300,12 +280,9 @@ function Team() {
         }
 
         .hero-subtitle {
-          font-size: clamp(1rem, 3vw, 1.25rem);
+          color: #A0AEC0;
+          font-size: 1.2rem;
           margin-bottom: 2.5rem;
-          opacity: 0.9;
-          max-width: 600px;
-          margin-left: auto;
-          margin-right: auto;
         }
 
         .hero-stats {
@@ -334,140 +311,93 @@ function Team() {
 
         /* Team Members */
         .team-members-section {
-          background: #181A20;
+          padding: 40px 0 20px 0;
         }
 
-        .team-grid {
+        .services-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-          gap: clamp(1.5rem, 4vw, 2rem);
+          grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+          gap: 30px;
+          margin-top: 30px;
         }
 
-        .team-card {
+        .service-card {
+          background: rgba(35, 39, 47, 0.7);
+          border-radius: 1.2rem;
+          box-shadow: 0 4px 32px rgba(46,204,113,0.10), 0 1.5px 8px rgba(0,0,0,0.10);
+          padding: 2rem 1.3rem 1.5rem 1.3rem;
+          transition: transform 0.22s, box-shadow 0.22s, border 0.22s;
+          border: 2.5px solid transparent;
           position: relative;
-          padding: 2rem;
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          backdrop-filter: blur(8px);
           overflow: hidden;
         }
 
-        .team-card:hover {
-          transform: translateY(-5px);
+        .service-card:hover {
+          transform: translateY(-10px) scale(1.04);
+          box-shadow: 0 8px 40px rgba(46,204,113,0.18), 0 2px 16px rgba(0,0,0,0.13);
+          border: 2.5px solid #2ECC71;
         }
 
-        .team-card-header {
+        .service-card::before {
+          content: '';
+          display: block;
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 6px;
+          border-radius: 1.2rem 1.2rem 0 0;
+          background: linear-gradient(90deg, #2ECC71, #3498db);
+          opacity: 0.7;
+        }
+
+        .service-header {
           display: flex;
           align-items: center;
-          gap: 1.5rem;
-          margin-bottom: 1.5rem;
+          justify-content: space-between;
+          margin-bottom: 1.1rem;
         }
 
-        .member-avatar {
-          width: 80px;
-          height: 80px;
+        .service-icon {
+          width: 56px;
+          height: 56px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
-          font-weight: 800;
-          font-size: 1.5rem;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .member-stats {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .stat {
-          text-align: center;
-        }
-
-        .stat-value {
-          display: block;
+          font-size: 1.7rem;
           font-weight: 700;
-          color: #2ECC71;
-          font-size: 1.125rem;
+          background: linear-gradient(135deg, #2ECC71, #0057D9 80%);
+          color: #fff;
+          box-shadow: 0 2px 8px rgba(46,204,113,0.07);
+          border: 3px solid #fff;
+          outline: 3px solid #2ECC71;
         }
 
-        .stat-label {
-          font-size: 0.75rem;
-          color: #A0AEC0;
+        .service-content {
+          margin-bottom: 1.1rem;
         }
 
-        .team-card-content {
-          flex: 1;
-          margin-bottom: 2rem;
-        }
-
-        .member-name {
-          font-size: 1.5rem;
+        .service-title {
+          font-size: 1.25rem;
           font-weight: 700;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.3rem;
         }
 
-        .member-role {
+        .service-description {
           color: #A0AEC0;
-          font-weight: 600;
-          margin-bottom: 1rem;
-        }
-
-        .member-bio {
-          color: #A0AEC0;
-          line-height: 1.6;
-          margin-bottom: 1.5rem;
-        }
-
-        .member-skills h4 {
-          color: #E5E7EB;
           font-size: 1rem;
-          margin-bottom: 1rem;
+          margin-bottom: 0.7rem;
         }
 
-        .skills-list {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
+        .service-features {
+          margin-bottom: 0.7rem;
         }
 
-        .skill-tag {
-          padding: 0.25rem 0.75rem;
-          border: 1px solid;
-          border-radius: 1rem;
-          font-size: 0.75rem;
-          font-weight: 600;
-          background: rgba(255, 255, 255, 0.05);
+        .feature-check {
+          margin-right: 0.5rem;
         }
 
-        .team-card-footer {
-          margin-top: auto;
-        }
-
-        .contact-member-btn {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          padding: 0.75rem;
-          border: 2px solid;
-          border-radius: 2rem;
-          background: transparent;
-          text-decoration: none;
-          font-weight: 600;
-          transition: all 0.3s ease;
-        }
-
-        .contact-member-btn:hover {
-          background: currentColor;
-          color: #181A20 !important;
-          transform: translateY(-2px);
-        }
-
-        .member-highlight {
+        .service-highlight {
           position: absolute;
           bottom: 0;
           left: 0;
@@ -477,45 +407,52 @@ function Team() {
           transition: transform 0.3s ease;
         }
 
-        .team-card:hover .member-highlight {
+        .service-card:hover .service-highlight {
           transform: scaleX(1);
         }
 
         /* Team Values */
         .team-values-section {
-          background: #23272F;
+          padding: 40px 0 20px 0;
         }
 
         .values-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 2rem;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 25px;
+          margin-top: 25px;
         }
 
         .value-card {
+          background: rgba(35, 39, 47, 0.7);
+          border-radius: 1rem;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+          padding: 1.5rem 1.1rem 1.2rem 1.1rem;
           text-align: center;
-          padding: 2rem;
-          transition: transform 0.3s ease;
+          border: 2px solid transparent;
+          transition: box-shadow 0.2s, border 0.2s;
+          backdrop-filter: blur(8px);
         }
 
         .value-card:hover {
-          transform: translateY(-5px);
+          border: 2px solid #2ECC71;
+          box-shadow: 0 4px 18px rgba(46,204,113,0.10);
         }
 
         .value-icon {
-          font-size: 3rem;
-          margin-bottom: 1rem;
+          font-size: 2rem;
+          margin-bottom: 0.7rem;
         }
 
         .value-title {
-          font-size: 1.25rem;
-          margin-bottom: 1rem;
+          font-size: 1.1rem;
+          font-weight: 700;
+          margin-bottom: 0.2rem;
         }
 
         .value-description {
           color: #A0AEC0;
-          line-height: 1.6;
-          margin: 0;
+          font-size: 0.98rem;
         }
 
         /* Join Team Section */
@@ -570,45 +507,36 @@ function Team() {
 
         /* Responsive Design */
         @media (max-width: 900px) {
-          .team-grid {
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          .services-grid {
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
           }
-
-          .values-grid {
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          .service-card {
+            padding: 1.5rem 0.7rem 1.2rem 0.7rem !important;
           }
-
-          .hero-stats {
-            gap: 2rem;
+          .service-icon {
+            width: 56px !important;
+            height: 56px !important;
+            font-size: 1.5rem !important;
           }
-
-          .join-features {
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          .service-title {
+            font-size: 1.05rem !important;
           }
         }
 
         @media (max-width: 600px) {
-          .team-grid {
+          .services-grid {
             grid-template-columns: 1fr;
           }
-
-          .team-card-header {
-            flex-direction: column;
-            text-align: center;
+          .service-card {
+            padding: 1.1rem 0.4rem 0.8rem 0.4rem !important;
           }
-
-          .hero-stats {
-            flex-direction: column;
-            gap: 1.5rem;
+          .service-icon {
+            width: 44px !important;
+            height: 44px !important;
+            font-size: 1.1rem !important;
           }
-
-          .join-actions {
-            flex-direction: column;
-            align-items: center;
-          }
-
-          .join-features {
-            grid-template-columns: 1fr;
+          .service-title {
+            font-size: 0.98rem !important;
           }
         }
       `}</style>

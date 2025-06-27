@@ -141,7 +141,6 @@ function Services() {
                   <div className="service-icon" style={{ background: `${service.color}20`, color: service.color }}>
                     <span>{service.icon}</span>
                   </div>
-                  <div className="service-price">{service.price}</div>
                 </div>
                 
                 <div className="service-content">
@@ -383,15 +382,6 @@ function Services() {
           align-items: center;
           justify-content: center;
           font-size: 1.5rem;
-        }
-
-        .service-price {
-          background: rgba(46, 204, 113, 0.1);
-          color: #2ECC71;
-          padding: 0.5rem 1rem;
-          border-radius: 2rem;
-          font-size: 0.875rem;
-          font-weight: 600;
         }
 
         .service-content {

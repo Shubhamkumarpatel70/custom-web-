@@ -132,7 +132,7 @@ function Features() {
       </section>
 
       {/* Features Grid */}
-      <section className="features-grid-section section">
+      <section className="features-grid-section section" style={{ marginTop: '160px' }}>
         <div className="container">
           <div className="section-header">
             <h2 className="section-title">What Makes Us Different</h2>
@@ -140,42 +140,33 @@ function Features() {
               Comprehensive features designed to give you the best web development experience
             </p>
           </div>
-          <div className="features-grid">
+          <div className="services-grid">
             {features.map((feature, index) => (
-              <div 
-                key={feature.title} 
-                className={`feature-card card ${activeFeature === index ? 'active' : ''}`}
-                onClick={() => setActiveFeature(activeFeature === index ? null : index)}
-              >
-                <div className="feature-header">
-                  <div className="feature-icon" style={{ background: `${feature.color}20`, color: feature.color }}>
+              <div key={feature.title} className="service-card card animate-fade-in-up">
+                <div className="service-header">
+                  <div className="service-icon" style={{ background: `${feature.color}20`, color: feature.color }}>
                     <span>{feature.icon}</span>
                   </div>
-                  <div className="feature-expand">
-                    <span className={`expand-icon ${activeFeature === index ? 'active' : ''}`}>+</span>
-                  </div>
                 </div>
-                
-                <div className="feature-content">
-                  <h3 className="feature-title" style={{ color: feature.color }}>
+                <div className="service-content" style={{ textAlign: 'left' }}>
+                  <h3 className="service-title" style={{ color: feature.color, fontWeight: 700, fontSize: '1.15rem', marginBottom: '0.8rem' }}>
                     {feature.title}
                   </h3>
-                  <p className="feature-description">{feature.desc}</p>
-                  
-                  <div className={`feature-details ${activeFeature === index ? 'show' : ''}`}>
-                    <h4>Includes:</h4>
-                    <ul>
+                  <p className="service-description" style={{ color: '#A0AEC0', fontSize: '1rem', marginBottom: '0.7rem' }}>{feature.desc}</p>
+                  <div className="service-features">
+                    <h4 style={{ fontWeight: 600, fontSize: '1rem', marginBottom: '0.3rem' }}>Includes:</h4>
+                    <ul style={{ paddingLeft: '1.1em', margin: 0 }}>
                       {feature.details.map((detail, idx) => (
-                        <li key={idx}>
-                          <span className="detail-check" style={{ color: feature.color }}>✓</span>
-                          <span>{detail}</span>
+                        <li key={idx} style={{ marginBottom: '0.3rem', display: 'flex', alignItems: 'center' }}>
+                          <span className="feature-check" style={{ color: feature.color, marginRight: '0.5rem', fontWeight: 700 }}>
+3</span>
+                          <span style={{ color: '#E5E7EB', fontSize: '0.98rem' }}>{detail}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
                 </div>
-
-                <div className="feature-highlight" style={{ background: feature.color }}></div>
+                <div className="service-highlight" style={{ background: feature.color }}></div>
               </div>
             ))}
           </div>
@@ -275,16 +266,14 @@ function Features() {
       <style jsx>{`
         .features-page {
           background: #181A20;
+          color: #E5E7EB;
           min-height: 100vh;
         }
 
         /* Hero Section */
         .features-hero {
-          position: relative;
-          min-height: 80vh;
-          display: flex;
-          align-items: center;
-          overflow: hidden;
+          padding: 60px 0 30px 0;
+          text-align: center;
         }
 
         .hero-background {
@@ -322,16 +311,14 @@ function Features() {
           position: relative;
           z-index: 1;
           text-align: center;
-          color: #E5E7EB;
           max-width: 800px;
           margin: 0 auto;
         }
 
         .hero-title {
-          font-size: clamp(2.5rem, 6vw, 4rem);
+          font-size: 2.7rem;
           font-weight: 800;
-          margin-bottom: 1.5rem;
-          line-height: 1.1;
+          margin-bottom: 0.7rem;
         }
 
         .gradient-text {
@@ -342,12 +329,9 @@ function Features() {
         }
 
         .hero-subtitle {
-          font-size: clamp(1rem, 3vw, 1.25rem);
+          color: #A0AEC0;
+          font-size: 1.2rem;
           margin-bottom: 2.5rem;
-          opacity: 0.9;
-          max-width: 600px;
-          margin-left: auto;
-          margin-right: auto;
         }
 
         .hero-stats {
@@ -376,119 +360,115 @@ function Features() {
 
         /* Features Grid */
         .features-grid-section {
-          background: #181A20;
+          padding: 40px 0 20px 0;
         }
 
-        .features-grid {
+        .services-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-          gap: clamp(1.5rem, 4vw, 2rem);
+          grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+          gap: 30px;
+          margin-top: 30px;
         }
 
-        .feature-card {
-          position: relative;
-          padding: 2rem;
+        .service-card {
+          background: rgba(35, 39, 47, 0.7);
+          border-radius: 1.2rem;
+          box-shadow: 0 4px 32px rgba(46,204,113,0.10), 0 1.5px 8px rgba(0,0,0,0.10);
+          padding: 2rem 1.3rem 1.5rem 1.3rem;
+          transition: transform 0.22s, box-shadow 0.22s, border 0.22s;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          border: 2.5px solid transparent;
+          position: relative;
+          backdrop-filter: blur(8px);
           overflow: hidden;
         }
 
-        .feature-card:hover {
-          transform: translateY(-5px);
+        .service-card:hover, .service-card.active {
+          transform: translateY(-10px) scale(1.04);
+          box-shadow: 0 8px 40px rgba(46,204,113,0.18), 0 2px 16px rgba(0,0,0,0.13);
+          border: 2.5px solid #2ECC71;
         }
 
-        .feature-card.active {
-          border-color: #2ECC71;
-          box-shadow: 0 10px 30px rgba(46, 204, 113, 0.2);
+        .service-card::before {
+          content: '';
+          display: block;
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 6px;
+          border-radius: 1.2rem 1.2rem 0 0;
+          background: linear-gradient(90deg, #2ECC71, #3498db);
+          opacity: 0.7;
         }
 
-        .feature-header {
+        .service-header {
           display: flex;
+          align-items: center;
           justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1.5rem;
+          margin-bottom: 1.1rem;
         }
 
-        .feature-icon {
-          width: 60px;
-          height: 60px;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.5rem;
-        }
-
-        .feature-expand {
-          width: 30px;
-          height: 30px;
+        .service-icon {
+          width: 52px;
+          height: 52px;
           border-radius: 50%;
-          background: rgba(46, 204, 113, 0.1);
           display: flex;
           align-items: center;
           justify-content: center;
-          cursor: pointer;
+          font-size: 2rem;
+          font-weight: 700;
+          box-shadow: 0 0 16px 4px rgba(46,204,113,0.13);
+          background: rgba(46,204,113,0.08);
+          filter: blur(0.5px);
         }
 
-        .expand-icon {
-          color: #2ECC71;
+        .service-title {
           font-size: 1.25rem;
           font-weight: 700;
-          transition: transform 0.3s ease;
+          margin-bottom: 0.8rem;
         }
 
-        .expand-icon.active {
-          transform: rotate(45deg);
-        }
-
-        .feature-title {
-          font-size: 1.25rem;
-          font-weight: 700;
-          margin-bottom: 1rem;
-        }
-
-        .feature-description {
+        .service-description {
           color: #A0AEC0;
-          line-height: 1.6;
-          margin-bottom: 1rem;
+          font-size: 1rem;
+          margin-bottom: 0.7rem;
         }
 
-        .feature-details {
+        .service-features {
           max-height: 0;
           overflow: hidden;
-          transition: max-height 0.3s ease;
+          transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          margin-top: 0.7rem;
         }
 
-        .feature-details.show {
-          max-height: 200px;
+        .service-features.show {
+          max-height: 300px;
         }
 
-        .feature-details h4 {
-          color: #E5E7EB;
+        .service-features h4 {
           font-size: 1rem;
-          margin-bottom: 1rem;
+          font-weight: 600;
+          margin-bottom: 0.4rem;
         }
 
-        .feature-details ul {
+        .service-features ul {
           list-style: none;
           padding: 0;
           margin: 0;
         }
 
-        .feature-details li {
+        .service-features li {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
-          margin-bottom: 0.5rem;
-          color: #A0AEC0;
-          font-size: 0.875rem;
+          margin-bottom: 0.4rem;
         }
 
-        .detail-check {
-          font-weight: 700;
+        .feature-check {
+          color: #2ECC71;
+          margin-right: 8px;
+          font-weight: bold;
         }
 
-        .feature-highlight {
+        .service-highlight {
           position: absolute;
           bottom: 0;
           left: 0;
@@ -498,46 +478,53 @@ function Features() {
           transition: transform 0.3s ease;
         }
 
-        .feature-card:hover .feature-highlight,
-        .feature-card.active .feature-highlight {
+        .service-card:hover .service-highlight,
+        .service-card.active .service-highlight {
           transform: scaleX(1);
         }
 
         /* Benefits Section */
         .benefits-section {
-          background: #23272F;
+          padding: 40px 0 30px 0;
         }
 
         .benefits-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 2rem;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 25px;
+          margin-top: 25px;
         }
 
         .benefit-card {
+          background: rgba(35, 39, 47, 0.7);
+          border-radius: 1rem;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+          padding: 1.5rem 1.1rem 1.2rem 1.1rem;
           text-align: center;
-          padding: 2rem;
-          transition: transform 0.3s ease;
+          border: 2px solid transparent;
+          transition: box-shadow 0.2s, border 0.2s;
+          backdrop-filter: blur(8px);
         }
 
         .benefit-card:hover {
-          transform: translateY(-5px);
+          border: 2px solid #2ECC71;
+          box-shadow: 0 4px 18px rgba(46,204,113,0.10);
         }
 
         .benefit-icon {
-          font-size: 3rem;
-          margin-bottom: 1rem;
+          font-size: 2rem;
+          margin-bottom: 0.7rem;
         }
 
         .benefit-title {
-          font-size: 1.25rem;
-          margin-bottom: 1rem;
+          font-size: 1.1rem;
+          font-weight: 700;
+          margin-bottom: 0.2rem;
         }
 
         .benefit-description {
           color: #A0AEC0;
-          line-height: 1.6;
-          margin: 0;
+          font-size: 0.98rem;
         }
 
         /* Comparison Section */
@@ -613,7 +600,7 @@ function Features() {
 
         /* Responsive Design */
         @media (max-width: 900px) {
-          .features-grid {
+          .services-grid {
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
           }
 
@@ -633,7 +620,7 @@ function Features() {
         }
 
         @media (max-width: 600px) {
-          .features-grid {
+          .services-grid {
             grid-template-columns: 1fr;
           }
 

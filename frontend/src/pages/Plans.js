@@ -33,6 +33,9 @@ function Plans() {
     }
   };
 
+  // Show last plan first
+  const sortedPlans = [...plans].reverse();
+
   return (
     <div className="plans-container">
       {loading ? (
@@ -41,26 +44,26 @@ function Plans() {
         <div className="error">{error}</div>
       ) : (
         <div className="plans-grid">
-          {plans.map((plan, idx) => (
+          {sortedPlans.map((plan, idx) => (
             <div
               key={plan._id}
-              className={`plan-card ${plan.name === 'Starter' || plan.name === 'Pro' ? 'best-value' : ''}`}
+              className={`plan-card${plan.highlight ? ' best-value' : ''}`}
             >
-              {(plan.name === 'Starter' || plan.name === 'Pro') && (
+              {plan.highlight && (
                 <div className="best-value-badge">🏆 Best Value</div>
               )}
               <h2 className="plan-name">{plan.name}</h2>
               <div className="plan-price">
-                {plan.price}
+                ₹{plan.price}
               </div>
-              <div className="plan-old-price">{plan.oldPrice}</div>
+              <div className="plan-old-price">{plan.oldPrice ? `₹${plan.oldPrice}` : ''}</div>
               
               {plan.oldPrice && parseFloat(plan.oldPrice) > parseFloat(plan.price) ? (
                 <div className="plan-save">
                   Save ~{Math.round(((parseFloat(plan.oldPrice) - parseFloat(plan.price)) / parseFloat(plan.oldPrice)) * 100)}%
                 </div>
               ) : plan.save ? (
-                <div className="plan-save">{plan.save}</div>
+                <div className="plan-save">₹{plan.save}</div>
               ) : null}
 
               <div className="plan-duration">Duration: {plan.duration} days</div>
@@ -77,7 +80,7 @@ function Plans() {
               </div>
               <button
                 onClick={() => handleBuy(plan.name)}
-                className={`plan-button ${plan.name === 'Best' ? 'button-best' : ''}`}
+                className={`plan-button${plan.highlight ? ' button-best' : ''}`}
               >
                 Get Started →
               </button>
