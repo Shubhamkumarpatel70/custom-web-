@@ -62,6 +62,9 @@ const AdminPlans = () => {
     }
   };
 
+  // Sort plans: highlighted first
+  const sortedPlans = [...plans].sort((a, b) => (b.highlight === a.highlight) ? 0 : b.highlight ? -1 : 1);
+
   return (
     <div style={{ color: '#E5E7EB', maxWidth: '800px', margin: '0 auto' }}>
       <h2 style={{ color: '#2ECC71', fontWeight: 700, fontSize: '1.7rem', marginBottom: '1.2rem' }}>Manage Plans</h2>
@@ -85,8 +88,30 @@ const AdminPlans = () => {
       </form>
       <h3 style={{ color: '#2ECC71', fontWeight: 600, marginBottom: '1rem' }}>Existing Plans</h3>
       <ul style={{ listStyle: 'none', padding: 0 }}>
-        {plans.map(plan => (
-          <li key={plan._id} style={{ background: '#181A20', borderRadius: '0.5rem', padding: '1rem', marginBottom: '1rem' }}>
+        {sortedPlans.map(plan => (
+          <li key={plan._id} style={{
+            background: plan.highlight ? '#23272F' : '#181A20',
+            border: plan.highlight ? '2px solid #2ECC71' : '2px solid transparent',
+            borderRadius: '0.5rem',
+            padding: '1rem',
+            marginBottom: '1rem',
+            position: 'relative'
+          }}>
+            {plan.highlight && (
+              <span style={{
+                position: 'absolute',
+                top: 10,
+                right: 20,
+                background: '#2ECC71',
+                color: '#181A20',
+                borderRadius: '12px',
+                padding: '2px 10px',
+                fontWeight: 700,
+                fontSize: '0.85rem'
+              }}>
+                Highlighted
+              </span>
+            )}
             <b>{plan.name}</b> - {plan.price} <span style={{ color: plan.color }}>{plan.save}</span>
             <div style={{ fontSize: '0.95rem', color: '#A0AEC0' }}>Features: {plan.features.join(', ')}</div>
             <div style={{ fontSize: '0.95rem', color: '#A0AEC0' }}>Duration: {plan.duration} days</div>

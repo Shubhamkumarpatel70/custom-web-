@@ -21,7 +21,7 @@ const Payment = () => {
     setError('');
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('/api/auth/subscribe', { plan }, {
+      const res = await axios.post('/api/auth/subscribe', { plan: plan.toLowerCase() }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSubscription(res.data.subscription);

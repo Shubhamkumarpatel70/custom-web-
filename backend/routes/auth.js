@@ -71,7 +71,8 @@ function adminMiddleware(req, res, next) {
 
 // Create a new subscription (after payment)
 router.post('/subscribe', authMiddleware, async (req, res) => {
-  const { plan } = req.body;
+  let { plan } = req.body;
+  plan = plan && typeof plan === 'string' ? plan.toLowerCase() : '';
   if (!['starter', 'premium', 'pro'].includes(plan)) {
     return res.status(400).json({ message: 'Invalid plan.' });
   }

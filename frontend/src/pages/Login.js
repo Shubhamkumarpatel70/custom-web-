@@ -62,14 +62,16 @@ function Login() {
         <div style={{ position: 'relative' }}>
           <span style={{
             position: 'absolute',
-            left: '0.8rem',
+            left: '1rem',
             top: '50%',
             transform: 'translateY(-50%)',
             color: '#A0AEC0',
-            fontSize: '1.1rem',
+            fontSize: '1.2rem',
             pointerEvents: 'none',
             zIndex: 2
-          }}>\u2709\uFE0F</span>
+          }}>
+            📧
+          </span>
           <input
             type="email"
             placeholder="Email"
@@ -77,7 +79,7 @@ function Login() {
             onChange={e => setEmail(e.target.value)}
             required
             style={{
-              padding: '0.8rem 0.8rem 0.8rem 2.2rem',
+              padding: '0.8rem 0.8rem 0.8rem 2.5rem',
               borderRadius: '0.5rem',
               border: '1px solid #333',
               fontSize: '1rem',
