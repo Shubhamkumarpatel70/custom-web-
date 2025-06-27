@@ -59,21 +59,34 @@ function Login() {
             {location.state.success}
           </div>
         )}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          style={{
-            padding: '0.8rem',
-            borderRadius: '0.5rem',
-            border: '1px solid #333',
-            fontSize: '1rem',
-            background: '#23272F',
-            color: '#E5E7EB',
-          }}
-        />
+        <div style={{ position: 'relative' }}>
+          <span style={{
+            position: 'absolute',
+            left: '0.8rem',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: '#A0AEC0',
+            fontSize: '1.1rem',
+            pointerEvents: 'none',
+            zIndex: 2
+          }}>\u2709\uFE0F</span>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            style={{
+              padding: '0.8rem 0.8rem 0.8rem 2.2rem',
+              borderRadius: '0.5rem',
+              border: '1px solid #333',
+              fontSize: '1rem',
+              background: '#23272F',
+              color: '#E5E7EB',
+              width: '100%'
+            }}
+          />
+        </div>
         <div style={{ position: 'relative' }}>
           <input
             type={showPassword ? 'text' : 'password'}

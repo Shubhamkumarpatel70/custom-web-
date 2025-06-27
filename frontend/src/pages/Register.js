@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from '../axios';
+import { UserContext } from '../UserContext';
 
 function Register() {
   const [name, setName] = useState('');
@@ -10,6 +11,7 @@ function Register() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { setUser } = useContext(UserContext);
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -18,6 +20,7 @@ function Register() {
     try {
       const res = await axios.post('/api/auth/register', { name, email, password });
       localStorage.setItem('token', res.data.token);
+      setUser(res.data.user);
       setLoading(false);
       navigate('/dashboard');
     } catch (err) {

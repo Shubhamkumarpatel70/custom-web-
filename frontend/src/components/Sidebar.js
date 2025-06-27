@@ -191,9 +191,12 @@ const Sidebar = ({ onLogout, isPlanExpired }) => (
 
       .nav-item.active {
         color: #fff;
-        background: linear-gradient(90deg, rgba(46,204,113,0.18), rgba(0,87,217,0.10));
-        border-left: 3px solid #2ECC71;
-        box-shadow: 0 2px 12px rgba(46,204,113,0.10);
+        background: linear-gradient(90deg, rgba(46,204,113,0.28), rgba(0,87,217,0.18));
+        border-left: 4px solid #2ECC71;
+        box-shadow: 0 2px 16px rgba(46,204,113,0.13);
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        transform: scale(1.03);
       }
 
       .nav-item.expired {
