@@ -16,7 +16,10 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: [
+    'http://localhost:3000',
+    'https://custom-web-frontend.onrender.com'
+  ],
   credentials: true
 }));
 app.use(express.json());
@@ -97,7 +100,10 @@ app.get('/api/dashboard', authMiddleware, async (req, res) => {
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: [
+      'http://localhost:3000',
+      'https://custom-web-frontend.onrender.com'
+    ],
     methods: ['GET', 'POST'],
     credentials: true
   }
