@@ -20,7 +20,6 @@ function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -29,7 +28,6 @@ function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
@@ -45,23 +43,31 @@ function Navbar() {
     navigate('/login');
   };
 
+  const getAvatar = () => {
+    if (user && user.name) {
+      return user.name[0].toUpperCase();
+    }
+    return <span role="img" aria-label="User">👤</span>;
+  };
+
   return (
     <>
-      <nav className={`modern-navbar ${isScrolled ? 'scrolled' : ''}`}>
+      <nav className={`modern-navbar ${isScrolled ? 'scrolled' : ''}`} aria-label="Main Navigation">
         <div className="container">
           <div className="navbar-content">
             {/* Logo */}
-            <Link to="/" className="navbar-logo">
+            <Link to="/" className="navbar-logo" aria-label="Home">
               <span className="logo-text">CUSTOM WEB</span>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="navbar-nav desktop-nav">
+            <div className="navbar-nav">
               {navLinks.map(link => (
                 <Link
                   key={link.to}
                   to={link.to}
                   className={`nav-link ${location.pathname === link.to ? 'active' : ''}`}
+                  tabIndex={0}
                 >
                   {link.label}
                 </Link>
@@ -69,35 +75,37 @@ function Navbar() {
             </div>
 
             {/* Auth Buttons / User Dropdown */}
-            <div className="navbar-auth desktop-auth">
+            <div className="navbar-auth">
               {user ? (
                 <div className="user-dropdown-wrapper">
                   <button
-                    className="user-btn user-dropdown-toggle"
-                    onClick={() => setDropdownOpen(o => !o)}
+                    className="user-btn"
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
                     aria-haspopup="true"
                     aria-expanded={dropdownOpen}
+                    aria-label="User menu"
                   >
+                    <span className="user-avatar">{getAvatar()}</span>
                     <span className="user-name">{user.name || 'User'}</span>
+                    <span className="user-caret">▼</span>
                   </button>
-                  {dropdownOpen && (
-                    <div className="user-dropdown-menu" onMouseLeave={() => setDropdownOpen(false)}>
-                      <Link to={user.role === 'admin' ? '/admin-dashboard' : '/dashboard'} className="dropdown-item" onClick={() => setDropdownOpen(false)}>
-                        {user.role === 'admin' ? 'Admin Dashboard' : 'User Dashboard'}
-                      </Link>
-                      <button className="dropdown-item logout-btn" onClick={handleLogout}>
-                        Logout
-                      </button>
-                    </div>
-                  )}
+                  <div className={`user-dropdown ${dropdownOpen ? 'open' : ''}`} tabIndex={-1} onBlur={() => setDropdownOpen(false)}>
+                    <Link to={user.role === 'admin' ? '/admin-dashboard' : '/dashboard'} className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                      {user.role === 'admin' ? 'Admin Dashboard' : 'User Dashboard'}
+                    </Link>
+                    <div className="dropdown-divider"></div>
+                    <button className="dropdown-item logout-btn" onClick={handleLogout}>
+                      Logout
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="auth-buttons">
-                  <Link to='/login' className="btn btn-primary">
-                    Login
+                  <Link to='/login' className="btn btn-primary" aria-label="Login">
+                    <span role="img" aria-label="Login">🔑</span> Login
                   </Link>
-                  <Link to='/register' className="btn btn-secondary">
-                    Register
+                  <Link to='/register' className="btn btn-secondary" aria-label="Register">
+                    <span role="img" aria-label="Register">📝</span> Register
                   </Link>
                 </div>
               )}
@@ -108,6 +116,7 @@ function Navbar() {
               className={`mobile-menu-btn ${isMobileMenuOpen ? 'active' : ''}`}
               onClick={toggleMobileMenu}
               aria-label="Toggle mobile menu"
+              aria-expanded={isMobileMenuOpen}
             >
               <span></span>
               <span></span>
@@ -117,14 +126,16 @@ function Navbar() {
         </div>
 
         {/* Mobile Menu Overlay */}
-        <div className={`mobile-menu-overlay ${isMobileMenuOpen ? 'active' : ''}`}>
-          <div className="mobile-menu-content">
+        <div className={`mobile-menu-overlay ${isMobileMenuOpen ? 'active' : ''}`} onClick={toggleMobileMenu} aria-hidden={!isMobileMenuOpen}>
+          <div className="mobile-menu-content" onClick={(e) => e.stopPropagation()}>
             <div className="mobile-nav-links">
               {navLinks.map(link => (
                 <Link
                   key={link.to}
                   to={link.to}
                   className={`mobile-nav-link ${location.pathname === link.to ? 'active' : ''}`}
+                  tabIndex={isMobileMenuOpen ? 0 : -1}
+                  onClick={toggleMobileMenu}
                 >
                   {link.label}
                 </Link>
@@ -134,31 +145,33 @@ function Navbar() {
               {user ? (
                 <div className="user-dropdown-wrapper">
                   <button
-                    className="user-btn user-dropdown-toggle"
-                    onClick={() => setDropdownOpen(o => !o)}
+                    className="user-btn"
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
                     aria-haspopup="true"
                     aria-expanded={dropdownOpen}
+                    aria-label="User menu"
                   >
+                    <span className="user-avatar">{getAvatar()}</span>
                     <span className="user-name">{user.name || 'User'}</span>
+                    <span className="user-caret">▼</span>
                   </button>
-                  {dropdownOpen && (
-                    <div className="user-dropdown-menu" onMouseLeave={() => setDropdownOpen(false)}>
-                      <Link to={user.role === 'admin' ? '/admin-dashboard' : '/dashboard'} className="dropdown-item" onClick={() => setDropdownOpen(false)}>
-                        {user.role === 'admin' ? 'Admin Dashboard' : 'User Dashboard'}
-                      </Link>
-                      <button className="dropdown-item logout-btn" onClick={handleLogout}>
-                        Logout
-                      </button>
-                    </div>
-                  )}
+                  <div className={`user-dropdown ${dropdownOpen ? 'open' : ''}`} tabIndex={-1}>
+                    <Link to={user.role === 'admin' ? '/admin-dashboard' : '/dashboard'} className="dropdown-item" onClick={toggleMobileMenu}>
+                      {user.role === 'admin' ? 'Admin Dashboard' : 'User Dashboard'}
+                    </Link>
+                    <div className="dropdown-divider"></div>
+                    <button className="dropdown-item logout-btn" onClick={handleLogout}>
+                      Logout
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="mobile-auth-buttons">
-                  <Link to='/login' className="btn btn-primary">
-                    Login
+                  <Link to='/login' className="btn btn-primary" onClick={toggleMobileMenu} aria-label="Login">
+                    <span role="img" aria-label="Login">🔑</span> Login
                   </Link>
-                  <Link to='/register' className="btn btn-secondary">
-                    Register
+                  <Link to='/register' className="btn btn-secondary" onClick={toggleMobileMenu} aria-label="Register">
+                    <span role="img" aria-label="Register">📝</span> Register
                   </Link>
                 </div>
               )}
@@ -169,63 +182,83 @@ function Navbar() {
 
       {/* Navbar Styles */}
       <style jsx>{`
+        :root {
+          --primary: #6366f1;
+          --primary-dark: #4f46e5;
+          --secondary: #06b6d4;
+          --accent: #f59e0b;
+          --dark: #1e293b;
+          --light: #f8fafc;
+          --bg: #f1f5f9;
+          --error: #ef4444;
+          --success: #10b981;
+        }
+        
         .modern-navbar {
           position: fixed;
           top: 0;
           left: 0;
           right: 0;
-          background: rgba(35, 39, 47, 0.95);
-          backdrop-filter: blur(10px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(15, 23, 42, 0.95);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
           z-index: 1000;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          min-height: 48px;
+          transition: all 0.3s ease;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-
+        
         .modern-navbar.scrolled {
-          background: rgba(35, 39, 47, 0.98);
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+          background: rgba(15, 23, 42, 0.98);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
-
+        
+        .container {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0 1.5rem;
+        }
+        
         .navbar-content {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.5rem 0;
-          min-height: 48px;
+          height: 5rem;
         }
-
+        
         .navbar-logo {
+          display: flex;
+          align-items: center;
           text-decoration: none;
-          z-index: 1001;
-        }
-
-        .logo-text {
           font-weight: 800;
-          font-size: clamp(1.1rem, 2.5vw, 1.3rem);
-          background: linear-gradient(135deg, #2ECC71, #FF6B35);
+          font-size: 1.5rem;
+          color: var(--light);
+          z-index: 1100;
+        }
+        
+        .logo-text {
+          background: linear-gradient(90deg, var(--primary), var(--accent));
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          letter-spacing: 1px;
+          letter-spacing: 0.5px;
         }
-
+        
         .navbar-nav {
           display: flex;
           align-items: center;
-          gap: clamp(0.7rem, 2vw, 1.2rem);
+          gap: 1.5rem;
         }
-
+        
         .nav-link {
-          color: #E5E7EB;
+          color: var(--light);
           text-decoration: none;
           font-weight: 500;
-          font-size: clamp(0.85rem, 2vw, 0.95rem);
-          padding: 0.3rem 0;
+          font-size: 1rem;
+          padding: 0.5rem 0;
           position: relative;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: color 0.2s ease;
         }
-
+        
         .nav-link::after {
           content: '';
           position: absolute;
@@ -233,259 +266,290 @@ function Navbar() {
           left: 0;
           width: 0;
           height: 2px;
-          background: linear-gradient(135deg, #2ECC71, #FF6B35);
-          transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-          color: #2ECC71;
-        }
-
-        .nav-link.active::after {
-          width: 100%;
-        }
-
-        .mobile-menu-btn {
-          display: none;
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0.5rem;
-          z-index: 1001;
-        }
-
-        .mobile-menu-btn span {
-          display: block;
-          width: 24px;
-          height: 2px;
-          background: #E5E7EB;
-          margin: 5px 0;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .mobile-menu-btn.active span:nth-child(1) {
-          transform: translateY(7px) rotate(45deg);
-        }
-        .mobile-menu-btn.active span:nth-child(2) {
-          opacity: 0;
-        }
-        .mobile-menu-btn.active span:nth-child(3) {
-          transform: translateY(-7px) rotate(-45deg);
-        }
-
-        .mobile-menu-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(35, 39, 47, 0.98);
-          backdrop-filter: blur(12px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          opacity: 0;
-          visibility: hidden;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          z-index: 1000;
-        }
-
-        .mobile-menu-overlay.active {
-          opacity: 1;
-          visibility: visible;
-        }
-
-        .mobile-menu-content {
-          text-align: center;
-        }
-
-        .mobile-nav-links {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
-
-        .mobile-nav-link {
-          color: #E5E7EB;
-          text-decoration: none;
-          font-size: 1.5rem;
-          font-weight: 600;
-          opacity: 0;
-          transform: translateY(20px);
-          transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .mobile-menu-overlay.active .mobile-nav-link {
-          opacity: 1;
-          transform: translateY(0);
-        }
-
-        .mobile-nav-link:hover {
-          color: #2ECC71;
+          background: linear-gradient(90deg, var(--primary), var(--accent));
+          transition: width 0.3s ease;
         }
         
-        .mobile-menu-overlay.active .mobile-nav-link:nth-child(1) { transition-delay: 0.1s; }
-        .mobile-menu-overlay.active .mobile-nav-link:nth-child(2) { transition-delay: 0.2s; }
-        .mobile-menu-overlay.active .mobile-nav-link:nth-child(3) { transition-delay: 0.3s; }
-        .mobile-menu-overlay.active .mobile-nav-link:nth-child(4) { transition-delay: 0.4s; }
-        .mobile-menu-overlay.active .mobile-nav-link:nth-child(5) { transition-delay: 0.5s; }
-        .mobile-menu-overlay.active .mobile-nav-link:nth-child(6) { transition-delay: 0.6s; }
-        .mobile-menu-overlay.active .mobile-nav-link:nth-child(7) { transition-delay: 0.7s; }
-
-        .btn {
-          padding: 0.6rem 1.2rem;
-          border-radius: 2rem;
-          text-decoration: none;
-          font-weight: 600;
-          transition: all 0.3s ease;
-          border: 2px solid transparent;
+        .nav-link:hover,
+        .nav-link.active {
+          color: var(--secondary);
         }
-        .btn-primary {
-          background: linear-gradient(135deg, #2ECC71, #0057D9);
-          color: white;
+        
+        .nav-link.active::after,
+        .nav-link:hover::after {
+          width: 100%;
         }
-        .btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(46, 204, 113, 0.2);
-        }
-        .btn-secondary {
-          background: transparent;
-          color: #E5E7EB;
-          border-color: #E5E7EB;
-        }
-        .btn-secondary:hover {
-          background: #E5E7EB;
-          color: #181A20;
-          transform: translateY(-2px);
-        }
-
+        
         .navbar-auth {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 1rem;
         }
-
+        
         .auth-buttons {
           display: flex;
           gap: 0.75rem;
         }
-
+        
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.5rem 1.25rem;
+          border-radius: 0.375rem;
+          font-weight: 600;
+          font-size: 0.9375rem;
+          transition: all 0.2s ease;
+          cursor: pointer;
+          text-decoration: none;
+        }
+        
+        .btn-primary {
+          background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+          color: white;
+          border: none;
+        }
+        
+        .btn-primary:hover {
+          background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-secondary {
+          background: transparent;
+          color: var(--light);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:hover {
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(255, 255, 255, 0.3);
+          transform: translateY(-1px);
+        }
+        
+        .user-dropdown-wrapper {
+          position: relative;
+        }
+        
         .user-btn {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          padding: 0.5rem 1rem;
+          background: rgba(255, 255, 255, 0.1);
+          border: none;
+          border-radius: 2rem;
+          padding: 0.5rem 0.75rem 0.5rem 0.5rem;
+          color: var(--light);
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
         }
- 
-         .mobile-auth {
-          margin-top: 2rem;
+        
+        .user-btn:hover {
+          background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .user-avatar {
+          width: 2rem;
+          height: 2rem;
+          background: linear-gradient(135deg, var(--primary), var(--secondary));
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+        }
+        
+        .user-caret {
+          font-size: 0.75rem;
+          margin-left: 0.25rem;
+          transition: transform 0.2s ease;
+        }
+        
+        .user-dropdown {
+          position: absolute;
+          right: 0;
+          top: calc(100% + 0.5rem);
+          min-width: 12rem;
+          background: white;
+          border-radius: 0.5rem;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
           opacity: 0;
-          transform: translateY(20px);
-          animation: slideInUp 0.5s ease-out 0.8s forwards;
+          visibility: hidden;
+          transform: translateY(-0.5rem);
+          transition: all 0.2s ease;
+          z-index: 50;
+          border: 1px solid rgba(0, 0, 0, 0.05);
         }
-
-        .mobile-auth-buttons {
+        
+        .user-dropdown.open {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0);
+        }
+        
+        .dropdown-item {
+          display: block;
+          padding: 0.75rem 1rem;
+          color: var(--dark);
+          text-decoration: none;
+          font-size: 0.9375rem;
+          transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+          background: var(--bg);
+          color: var(--primary);
+        }
+        
+        .dropdown-divider {
+          height: 1px;
+          background: rgba(0, 0, 0, 0.1);
+          margin: 0.25rem 0;
+        }
+        
+        .logout-btn {
+          color: var(--error);
+          width: 100%;
+          text-align: left;
+          background: none;
+          border: none;
+          cursor: pointer;
+        }
+        
+        .logout-btn:hover {
+          background: rgba(239, 68, 68, 0.05);
+        }
+        
+        .mobile-menu-btn {
+          display: none;
+          flex-direction: column;
+          justify-content: space-between;
+          width: 2rem;
+          height: 1.5rem;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          z-index: 1100;
+        }
+        
+        .mobile-menu-btn span {
+          display: block;
+          width: 100%;
+          height: 2px;
+          background: var(--light);
+          border-radius: 1px;
+          transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-btn.active span:nth-child(1) {
+          transform: translateY(0.5rem) rotate(45deg);
+        }
+        
+        .mobile-menu-btn.active span:nth-child(2) {
+          opacity: 0;
+        }
+        
+        .mobile-menu-btn.active span:nth-child(3) {
+          transform: translateY(-0.5rem) rotate(-45deg);
+        }
+        
+        .mobile-menu-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.8);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          z-index: 1000;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-overlay.active {
+          opacity: 1;
+          visibility: visible;
+        }
+        
+        .mobile-menu-content {
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 100%;
+          max-width: 20rem;
+          height: 100vh;
+          background: var(--dark);
+          padding: 6rem 2rem 2rem;
+          overflow-y: auto;
+          transform: translateX(100%);
+          transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu-overlay.active .mobile-menu-content {
+          transform: translateX(0);
+        }
+        
+        .mobile-nav-links {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+        }
+        
+        .mobile-nav-link {
+          color: var(--light);
+          font-size: 1.25rem;
+          font-weight: 500;
+          text-decoration: none;
+          transition: color 0.2s ease;
+        }
+        
+        .mobile-nav-link:hover,
+        .mobile-nav-link.active {
+          color: var(--accent);
+        }
+        
+        .mobile-auth {
           display: flex;
           flex-direction: column;
           gap: 1rem;
-          width: 200px;
         }
-
-         @keyframes slideInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+        
+        .mobile-auth-buttons {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
         }
-
-        /* Responsive Design */
-        @media (max-width: 900px) {
-          .desktop-nav,
-          .desktop-auth {
+        
+        .mobile-auth-buttons .btn {
+          width: 100%;
+          justify-content: center;
+        }
+        
+        @media (max-width: 1024px) {
+          .navbar-nav,
+          .navbar-auth {
             display: none;
           }
+          
           .mobile-menu-btn {
-            display: block;
+            display: flex;
           }
         }
         
-        @media (max-width: 600px) {
-            .mobile-nav-link {
-              font-size: 1.25rem;
-            }
-
-           .mobile-auth-buttons {
-             width: 100%;
-             max-width: 250px;
-           }
-         }
-
-        .user-dropdown-wrapper {
-          position: relative;
-          display: inline-block;
-        }
-        .user-btn.user-dropdown-toggle {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: none;
-          border: none;
-          color: #E5E7EB;
-          font-weight: 600;
-          font-size: 1rem;
-          cursor: pointer;
-          padding: 0.5rem 1rem;
-          border-radius: 2rem;
-          transition: background 0.2s;
-        }
-        .user-btn.user-dropdown-toggle:hover, .user-btn.user-dropdown-toggle:focus {
-          background: rgba(46,204,113,0.08);
-        }
-        .user-name {
-          font-weight: 600;
-          color: #E5E7EB;
-        }
-        .user-dropdown-menu {
-          position: absolute;
-          top: 110%;
-          right: 0;
-          min-width: 180px;
-          background: #23272F;
-          border-radius: 1rem;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-          padding: 0.5rem 0;
-          z-index: 2000;
-          animation: dropdownFadeIn 0.2s;
-        }
-        @keyframes dropdownFadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .dropdown-item {
-          display: block;
-          width: 100%;
-          padding: 0.7rem 1.2rem;
-          color: #E5E7EB;
-          background: none;
-          border: none;
-          text-align: left;
-          font-size: 1rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: background 0.18s;
-          text-decoration: none;
-        }
-        .dropdown-item:hover, .dropdown-item:focus {
-          background: rgba(46,204,113,0.10);
-          color: #2ECC71;
-        }
-        .logout-btn {
-          color: #FF6B35;
-        }
-        @media (max-width: 900px) {
-          .user-dropdown-menu {
-            left: 0;
-            right: auto;
-            min-width: 160px;
+        @media (max-width: 640px) {
+          .container {
+            padding: 0 1rem;
+          }
+          
+          .mobile-menu-content {
+            max-width: 100%;
           }
         }
       `}</style>
@@ -493,4 +557,4 @@ function Navbar() {
   );
 }
 
-export default Navbar; 
+export default Navbar;

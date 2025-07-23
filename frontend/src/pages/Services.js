@@ -2,92 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const services = [
-  {
-    title: 'Web Design & Development',
-    desc: 'Modern, responsive websites tailored to your brand with cutting-edge technologies.',
-    icon: '🖥️',
-    color: '#0057D9',
-    features: ['Responsive Design', 'Modern UI/UX', 'SEO Optimized', 'Fast Loading'],
-    price: 'Starting from ₹15,000'
-  },
-  {
-    title: 'Education Website',
-    desc: 'Custom solutions for schools, colleges, and e-learning platforms.',
-    icon: '🎓',
-    color: '#2ECC71',
-    features: ['Student Portal', 'Course Management', 'Online Exams', 'Progress Tracking'],
-    price: 'Starting from ₹25,000'
-  },
-  {
-    title: 'Interactive Forms',
-    desc: 'Interactive and secure forms for your business needs and data collection.',
-    icon: '📝',
-    color: '#FF6B35',
-    features: ['Custom Fields', 'Data Validation', 'Email Integration', 'Analytics'],
-    price: 'Starting from ₹8,000'
-  },
-  {
-    title: 'Client Websites',
-    desc: 'Professional websites for your clients and business partners.',
-    icon: '👥',
-    color: '#9333EA',
-    features: ['Client Portal', 'Project Management', 'Communication Tools', 'File Sharing'],
-    price: 'Starting from ₹20,000'
-  },
-  {
-    title: 'Custom Solutions',
-    desc: 'Fully customized web solutions for any specific requirement.',
-    icon: '⚙️',
-    color: '#0057D9',
-    features: ['Custom Features', 'API Integration', 'Database Design', 'Scalable Architecture'],
-    price: 'Quote on Request'
-  },
-  {
-    title: 'Bug Fixing & Maintenance',
-    desc: 'Identify and fix bugs to keep your site running smoothly and efficiently.',
-    icon: '🔍',
-    color: '#FF6B35',
-    features: ['Bug Detection', 'Performance Optimization', 'Security Updates', '24/7 Monitoring'],
-    price: 'Starting from ₹5,000'
-  },
+  // ... (keep your existing services array)
 ];
 
 const process = [
-  {
-    step: '01',
-    title: 'Discovery & Planning',
-    desc: 'We understand your requirements and create a detailed project plan.',
-    icon: '🔍'
-  },
-  {
-    step: '02',
-    title: 'Design & Prototype',
-    desc: 'Create wireframes and design mockups for your approval.',
-    icon: '🎨'
-  },
-  {
-    step: '03',
-    title: 'Development',
-    desc: 'Build your website using modern technologies and best practices.',
-    icon: '⚡'
-  },
-  {
-    step: '04',
-    title: 'Testing & Launch',
-    desc: 'Thorough testing and deployment to ensure everything works perfectly.',
-    icon: '🚀'
-  }
+  // ... (keep your existing process array)
 ];
 
 const technologies = [
-  { name: 'React', icon: '⚛️', color: '#61DAFB' },
-  { name: 'Node.js', icon: '🟢', color: '#339933' },
-  { name: 'MongoDB', icon: '🍃', color: '#47A248' },
-  { name: 'Express', icon: '🚀', color: '#000000' },
-  { name: 'HTML5', icon: '🌐', color: '#E34F26' },
-  { name: 'CSS3', icon: '🎨', color: '#1572B6' },
-  { name: 'JavaScript', icon: '⚡', color: '#F7DF1E' },
-  { name: 'Python', icon: '🐍', color: '#3776AB' }
+  // ... (keep your existing technologies array)
 ];
 
 function Services() {
@@ -162,6 +85,10 @@ function Services() {
                   </div>
                 </div>
 
+                <div className="service-footer">
+                  <span className="service-price">{service.price}</span>
+                </div>
+
                 <div className="service-highlight" style={{ background: service.color }}></div>
               </div>
             ))}
@@ -228,7 +155,7 @@ function Services() {
               Let's discuss your requirements and create something amazing together.
             </p>
             <div className="cta-actions">
-              <Link to="/contact" className="btn btn-secondary">
+              <Link to="/contact" className="btn btn-primary">
                 Get Free Quote
               </Link>
               <Link to="/plans" className="btn btn-outline">
@@ -241,9 +168,108 @@ function Services() {
 
       {/* Modern Styles */}
       <style jsx>{`
+        :root {
+          --primary-color: #0057D9;
+          --secondary-color: #2ECC71;
+          --accent-color: #FF6B35;
+          --dark-bg: #181A20;
+          --medium-bg: #23272F;
+          --light-text: #E5E7EB;
+          --gray-text: #A0AEC0;
+          --card-bg: rgba(30, 34, 42, 0.8);
+          --card-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
         .services-page {
-          background: #181A20;
+          background: var(--dark-bg);
+          color: var(--light-text);
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+          line-height: 1.6;
           min-height: 100vh;
+        }
+
+        .container {
+          width: 100%;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 1.5rem;
+        }
+
+        .section {
+          padding: 5rem 0;
+        }
+
+        .section-header {
+          text-align: center;
+          margin-bottom: 3rem;
+        }
+
+        .section-title {
+          font-size: clamp(1.75rem, 4vw, 2.5rem);
+          font-weight: 700;
+          margin-bottom: 1rem;
+          background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .section-subtitle {
+          color: var(--gray-text);
+          font-size: clamp(1rem, 2vw, 1.125rem);
+          max-width: 700px;
+          margin: 0 auto;
+        }
+
+        .card {
+          background: var(--card-bg);
+          border-radius: 16px;
+          border: 1px solid var(--card-border);
+          backdrop-filter: blur(10px);
+          transition: all 0.3s ease;
+        }
+
+        .card-elevated {
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.75rem 1.5rem;
+          border-radius: 8px;
+          font-weight: 600;
+          text-decoration: none;
+          transition: all 0.3s ease;
+          border: 2px solid transparent;
+        }
+
+        .btn-primary {
+          background: var(--primary-color);
+          color: white;
+        }
+
+        .btn-primary:hover {
+          background: #0047b8;
+          transform: translateY(-2px);
+        }
+
+        .btn-outline {
+          background: transparent;
+          color: var(--light-text);
+          border-color: var(--light-text);
+        }
+
+        .btn-outline:hover {
+          background: rgba(255, 255, 255, 0.1);
+          transform: translateY(-2px);
         }
 
         /* Hero Section */
@@ -253,6 +279,7 @@ function Services() {
           display: flex;
           align-items: center;
           overflow: hidden;
+          padding: 4rem 0;
         }
 
         .hero-background {
@@ -270,7 +297,7 @@ function Services() {
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, #0057D9 0%, #2ECC71 50%, #FF6B35 100%);
+          background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
           opacity: 0.9;
         }
 
@@ -290,7 +317,7 @@ function Services() {
           position: relative;
           z-index: 1;
           text-align: center;
-          color: #E5E7EB;
+          color: var(--light-text);
           max-width: 800px;
           margin: 0 auto;
         }
@@ -303,7 +330,7 @@ function Services() {
         }
 
         .gradient-text {
-          background: linear-gradient(135deg, #FFD700, #FF6B35);
+          background: linear-gradient(135deg, #FFD700, var(--accent-color));
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -323,10 +350,12 @@ function Services() {
           justify-content: center;
           gap: clamp(2rem, 6vw, 4rem);
           flex-wrap: wrap;
+          margin-top: 2rem;
         }
 
         .stat-item {
           text-align: center;
+          min-width: 100px;
         }
 
         .stat-number {
@@ -335,6 +364,7 @@ function Services() {
           font-weight: 800;
           color: #FFD700;
           margin-bottom: 0.5rem;
+          line-height: 1;
         }
 
         .stat-label {
@@ -343,14 +373,10 @@ function Services() {
         }
 
         /* Services Grid */
-        .services-grid-section {
-          background: #181A20;
-        }
-
         .services-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-          gap: clamp(1.5rem, 4vw, 2rem);
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 1.5rem;
         }
 
         .service-card {
@@ -359,18 +385,15 @@ function Services() {
           display: flex;
           flex-direction: column;
           height: 100%;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           overflow: hidden;
         }
 
         .service-card:hover {
           transform: translateY(-5px);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .service-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
           margin-bottom: 1.5rem;
         }
 
@@ -382,11 +405,12 @@ function Services() {
           align-items: center;
           justify-content: center;
           font-size: 1.5rem;
+          margin-bottom: 1rem;
         }
 
         .service-content {
           flex: 1;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
         }
 
         .service-title {
@@ -396,13 +420,13 @@ function Services() {
         }
 
         .service-description {
-          color: #A0AEC0;
+          color: var(--gray-text);
           line-height: 1.6;
           margin-bottom: 1.5rem;
         }
 
         .service-features h4 {
-          color: #E5E7EB;
+          color: var(--light-text);
           font-size: 1rem;
           margin-bottom: 1rem;
         }
@@ -418,12 +442,23 @@ function Services() {
           align-items: center;
           gap: 0.75rem;
           margin-bottom: 0.5rem;
-          color: #A0AEC0;
+          color: var(--gray-text);
           font-size: 0.875rem;
         }
 
         .feature-check {
           font-weight: 700;
+        }
+
+        .service-footer {
+          margin-top: auto;
+          padding-top: 1rem;
+        }
+
+        .service-price {
+          font-weight: 600;
+          color: var(--light-text);
+          font-size: 0.95rem;
         }
 
         .service-highlight {
@@ -433,6 +468,7 @@ function Services() {
           right: 0;
           height: 3px;
           transform: scaleX(0);
+          transform-origin: left;
           transition: transform 0.3s ease;
         }
 
@@ -442,12 +478,12 @@ function Services() {
 
         /* Process Section */
         .process-section {
-          background: #23272F;
+          background: var(--medium-bg);
         }
 
         .process-timeline {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
           gap: 2rem;
         }
 
@@ -458,12 +494,12 @@ function Services() {
 
         .process-number {
           position: absolute;
-          top: -1rem;
+          top: -1.5rem;
           left: 50%;
           transform: translateX(-50%);
           width: 50px;
           height: 50px;
-          background: linear-gradient(135deg, #2ECC71, #0057D9);
+          background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -472,6 +508,7 @@ function Services() {
           font-weight: 700;
           font-size: 1.25rem;
           z-index: 2;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
 
         .process-content {
@@ -482,25 +519,22 @@ function Services() {
         .process-icon {
           font-size: 2.5rem;
           margin-bottom: 1rem;
+          color: var(--secondary-color);
         }
 
         .process-title {
-          color: #E5E7EB;
+          color: var(--light-text);
           margin-bottom: 1rem;
           font-size: 1.25rem;
         }
 
         .process-description {
-          color: #A0AEC0;
+          color: var(--gray-text);
           line-height: 1.6;
           margin: 0;
         }
 
         /* Technologies Section */
-        .technologies-section {
-          background: #181A20;
-        }
-
         .technologies-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -510,11 +544,12 @@ function Services() {
         .tech-item {
           text-align: center;
           padding: 1.5rem 1rem;
-          transition: transform 0.3s ease;
+          transition: all 0.3s ease;
         }
 
         .tech-item:hover {
           transform: translateY(-5px);
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .tech-icon {
@@ -523,31 +558,34 @@ function Services() {
         }
 
         .tech-name {
-          color: #E5E7EB;
+          color: var(--light-text);
           font-size: 1rem;
           margin: 0;
         }
 
         /* CTA Section */
         .services-cta {
-          background: linear-gradient(135deg, #23272F, #181A20);
+          background: linear-gradient(135deg, var(--medium-bg), var(--dark-bg));
         }
 
         .cta-content {
           text-align: center;
           max-width: 600px;
           margin: 0 auto;
+          padding: 3rem 2rem;
           background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(0, 87, 217, 0.1));
           border: 1px solid rgba(46, 204, 113, 0.2);
+          border-radius: 16px;
         }
 
         .cta-title {
           margin-bottom: 1rem;
-          color: #E5E7EB;
+          color: var(--light-text);
+          font-size: clamp(1.5rem, 3vw, 2rem);
         }
 
         .cta-description {
-          color: #A0AEC0;
+          color: var(--gray-text);
           margin-bottom: 2rem;
           font-size: clamp(1rem, 2.5vw, 1.125rem);
         }
@@ -560,27 +598,40 @@ function Services() {
         }
 
         /* Responsive Design */
-        @media (max-width: 900px) {
-          .services-grid {
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          }
-
-          .process-timeline {
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        @media (max-width: 768px) {
+          .section {
+            padding: 3rem 0;
           }
 
           .hero-stats {
-            gap: 2rem;
+            gap: 1.5rem;
+          }
+
+          .process-timeline {
+            grid-template-columns: 1fr;
+            gap: 3rem;
+          }
+
+          .process-item {
+            margin-bottom: 2rem;
+          }
+
+          .process-number {
+            top: -1.5rem;
           }
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 480px) {
+          .container {
+            padding: 0 1rem;
+          }
+
           .services-grid {
             grid-template-columns: 1fr;
           }
 
-          .technologies-grid {
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+          .service-card {
+            padding: 1.5rem;
           }
 
           .hero-stats {
@@ -592,10 +643,14 @@ function Services() {
             flex-direction: column;
             align-items: center;
           }
+
+          .btn {
+            width: 100%;
+          }
         }
       `}</style>
     </div>
   );
 }
 
-export default Services; 
+export default Services;
