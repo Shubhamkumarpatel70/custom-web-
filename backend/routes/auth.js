@@ -10,6 +10,7 @@ const User = require('../models/User');
 const cookieParser = require('cookie-parser');
 const Complaint = require('../models/Complaint');
 const passport = require('passport');
+const NewsletterSubscriber = require('../models/NewsletterSubscriber');
 
 router.use(cookieParser());
 
@@ -495,6 +496,52 @@ router.patch('/admin/renewal-requests/:id/reject', authMiddleware, adminMiddlewa
     res.json({ subscription, message: 'Renewal request rejected successfully.' });
   } catch (err) {
     res.status(500).json({ message: 'Could not reject renewal request.' });
+  }
+});
+
+// Newsletter subscribe endpoint
+router.post('/newsletter/subscribe', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email is required.' });
+    let subscriber = await NewsletterSubscriber.findOne({ email });
+    if (subscriber) return res.status(400).json({ message: 'Already subscribed.' });
+    subscriber = await NewsletterSubscriber.create({ email });
+    res.status(201).json({ message: 'Subscribed successfully.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Could not subscribe.' });
+  }
+});
+
+// Admin: Get all newsletter subscribers
+router.get('/admin/newsletter-subscribers', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const subscribers = await NewsletterSubscriber.find().sort({ createdAt: -1 });
+    res.json({ subscribers });
+  } catch (err) {
+    res.status(500).json({ message: 'Could not fetch subscribers.' });
+  }
+});
+
+// Mark contact as read
+router.patch('/contacts/:id/read', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const contact = await Contact.findByIdAndUpdate(req.params.id, { read: true }, { new: true });
+    if (!contact) return res.status(404).json({ message: 'Contact not found.' });
+    res.json({ contact });
+  } catch (err) {
+    res.status(500).json({ message: 'Could not mark as read.' });
+  }
+});
+
+// Mark contact as unread
+router.patch('/contacts/:id/unread', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const contact = await Contact.findByIdAndUpdate(req.params.id, { read: false }, { new: true });
+    if (!contact) return res.status(404).json({ message: 'Contact not found.' });
+    res.json({ contact });
+  } catch (err) {
+    res.status(500).json({ message: 'Could not mark as unread.' });
   }
 });
 

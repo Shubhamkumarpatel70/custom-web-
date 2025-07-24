@@ -12,6 +12,7 @@ import AdminNotifications from './AdminNotifications';
 import AdminPlans from './AdminPlans';
 import AdminContacts from './AdminContacts';
 import AdminRenewalRequests from './AdminRenewalRequests';
+import AdminNewsletter from './AdminNewsletter';
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -40,6 +41,8 @@ const AdminDashboard = () => {
         return <AdminPlans />;
       case 'contacts':
         return <AdminContacts />;
+      case 'newsletter':
+        return <AdminNewsletter />;
       case 'renewal-requests':
         return <AdminRenewalRequests />;
       case 'help':
