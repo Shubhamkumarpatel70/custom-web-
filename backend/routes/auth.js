@@ -11,6 +11,7 @@ const cookieParser = require('cookie-parser');
 const Complaint = require('../models/Complaint');
 const passport = require('passport');
 const NewsletterSubscriber = require('../models/NewsletterSubscriber');
+const Coupon = require('../models/Coupon');
 
 router.use(cookieParser());
 
@@ -505,15 +506,39 @@ router.post('/newsletter/subscribe', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: 'Email is required.' });
     let subscriber = await NewsletterSubscriber.findOne({ email });
-    if (subscriber) return res.status(400).json({ message: 'Already subscribed.' });
-    subscriber = await NewsletterSubscriber.create({ email });
+    if (subscriber) {
+      if (subscriber.status === 'subscribed') {
+        return res.status(400).json({ message: 'Already subscribed.' });
+      } else {
+        subscriber.status = 'subscribed';
+        await subscriber.save();
+        return res.json({ message: 'Subscribed successfully.' });
+      }
+    }
+    subscriber = await NewsletterSubscriber.create({ email, status: 'subscribed' });
     res.status(201).json({ message: 'Subscribed successfully.' });
   } catch (err) {
     res.status(500).json({ message: 'Could not subscribe.' });
   }
 });
 
-// Admin: Get all newsletter subscribers
+// Newsletter unsubscribe endpoint
+router.post('/newsletter/unsubscribe', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email is required.' });
+    const subscriber = await NewsletterSubscriber.findOne({ email });
+    if (!subscriber) return res.status(404).json({ message: 'Email not found in subscribers.' });
+    if (subscriber.status === 'unsubscribed') return res.status(400).json({ message: 'Already unsubscribed.' });
+    subscriber.status = 'unsubscribed';
+    await subscriber.save();
+    res.json({ message: 'Unsubscribed successfully.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Could not unsubscribe.' });
+  }
+});
+
+// Admin: Get all newsletter subscribers (show all with status)
 router.get('/admin/newsletter-subscribers', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const subscribers = await NewsletterSubscriber.find().sort({ createdAt: -1 });
@@ -542,6 +567,99 @@ router.patch('/contacts/:id/unread', authMiddleware, adminMiddleware, async (req
     res.json({ contact });
   } catch (err) {
     res.status(500).json({ message: 'Could not mark as unread.' });
+  }
+});
+
+// Admin: Create a new coupon
+router.post('/coupons', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { code, amount, usageLimit } = req.body;
+    if (!code || !amount) return res.status(400).json({ message: 'Code and amount are required.' });
+    const coupon = await Coupon.create({ code: code.toUpperCase(), amount, usageLimit });
+    res.status(201).json({ coupon });
+  } catch (err) {
+    res.status(500).json({ message: 'Could not create coupon.' });
+  }
+});
+
+// Admin: List all coupons
+router.get('/coupons', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const coupons = await Coupon.find().sort({ createdAt: -1 });
+    res.json({ coupons });
+  } catch (err) {
+    res.status(500).json({ message: 'Could not fetch coupons.' });
+  }
+});
+
+// Admin: Deactivate a coupon
+router.patch('/coupons/:id/deactivate', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const coupon = await Coupon.findByIdAndUpdate(req.params.id, { active: false }, { new: true });
+    if (!coupon) return res.status(404).json({ message: 'Coupon not found.' });
+    res.json({ coupon });
+  } catch (err) {
+    res.status(500).json({ message: 'Could not deactivate coupon.' });
+  }
+});
+
+// Admin: Delete a coupon
+router.delete('/coupons/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    await Coupon.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ message: 'Could not delete coupon.' });
+  }
+});
+
+// User: Apply a coupon (with usage tracking and per-user limit)
+router.post('/coupons/apply', async (req, res, next) => {
+  try {
+    const { code, use } = req.body;
+    if (!code) return res.status(400).json({ message: 'Coupon code is required.' });
+    const coupon = await Coupon.findOne({ code: code.toUpperCase(), active: true });
+    if (!coupon) return res.status(404).json({ message: 'Invalid or expired coupon.' });
+    if (coupon.usageLimit > 0 && coupon.usedCount >= coupon.usageLimit) {
+      return res.status(400).json({ message: 'Coupon usage limit reached.' });
+    }
+    let userId = null;
+    // If use=true, require authentication and track user
+    if (use) {
+      // Require authentication
+      authMiddleware(req, res, async () => {
+        userId = req.user.id;
+        // Check if user has already used this coupon
+        if (coupon.usedBy.includes(userId)) {
+          return res.status(400).json({ message: 'You have already used this coupon.' });
+        }
+        coupon.usedBy.push(userId);
+        coupon.usedCount += 1;
+        if (coupon.usageLimit > 0 && coupon.usedCount >= coupon.usageLimit) {
+          coupon.active = false;
+        }
+        await coupon.save();
+        return res.json({ amount: coupon.amount, coupon });
+      });
+      return;
+    }
+    // If not use=true, just check if user is authenticated and has not used coupon (optional, for preview)
+    if (req.headers.authorization) {
+      try {
+        authMiddleware(req, res, () => {
+          userId = req.user.id;
+          if (coupon.usedBy.includes(userId)) {
+            return res.status(400).json({ message: 'You have already used this coupon.' });
+          }
+          return res.json({ amount: coupon.amount, coupon });
+        });
+        return;
+      } catch {}
+    }
+    // If not authenticated, just return coupon info (for preview)
+    res.json({ amount: coupon.amount, coupon });
+  } catch (err) {
+    res.status(500).json({ message: 'Could not apply coupon.' });
   }
 });
 

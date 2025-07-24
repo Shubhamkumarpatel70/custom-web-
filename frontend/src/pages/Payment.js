@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from '../axios';
 import { UserContext } from '../UserContext';
-import QRCode from 'qrcode.react';
 
 const UPI_ID = 'customweb@upi';
 
@@ -13,10 +12,14 @@ const Payment = () => {
   const [subscription, setSubscription] = useState(null);
   const [error, setError] = useState('');
   const [plans, setPlans] = useState([]);
-  const [selectedMethod, setSelectedMethod] = useState('scan');
   const [transactionId, setTransactionId] = useState('');
   const [amount, setAmount] = useState('');
   const [planObj, setPlanObj] = useState(null);
+  const [coupon, setCoupon] = useState('');
+  const [couponMsg, setCouponMsg] = useState('');
+  const [discount, setDiscount] = useState(0);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -34,8 +37,28 @@ const Payment = () => {
   }, [plan]);
 
   if (!planObj) {
-    return <div style={{ color: '#FF6B35', textAlign: 'center', marginTop: '3rem' }}>Invalid plan selected.</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <div className="text-center text-red-500 text-xl font-medium">
+          Invalid plan selected.
+        </div>
+      </div>
+    );
   }
+
+  const handleApplyCoupon = async () => {
+    setCouponMsg('');
+    setApplyingCoupon(true);
+    try {
+      const res = await axios.post('/api/auth/coupons/apply', { code: coupon });
+      setDiscount(res.data.amount);
+      setCouponMsg(`Coupon applied! ₹${res.data.amount} off.`);
+    } catch (err) {
+      setDiscount(0);
+      setCouponMsg(err.response?.data?.message || 'Invalid coupon.');
+    }
+    setApplyingCoupon(false);
+  };
 
   const handlePayment = async () => {
     if (!transactionId) {
@@ -45,10 +68,21 @@ const Payment = () => {
     setStatus('processing');
     setError('');
     try {
+      if (coupon && discount > 0) {
+        await axios.post('/api/auth/coupons/apply', { code: coupon, use: true });
+      }
       const token = localStorage.getItem('token');
-      const res = await axios.post('/api/auth/subscribe', { plan: planObj.name.toLowerCase(), transactionId, method: selectedMethod }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await axios.post(
+        '/api/auth/subscribe', 
+        { 
+          plan: planObj.name.toLowerCase(), 
+          transactionId, 
+          method: 'upi' 
+        }, 
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
       setSubscription(res.data.subscription);
       setStatus('success');
     } catch (err) {
@@ -57,84 +91,212 @@ const Payment = () => {
     }
   };
 
-  const upiString = `upi://pay?pa=${UPI_ID}&pn=Custom Web&am=${amount}&cu=INR&tn=${planObj.name} Plan`;
+  const totalAmount = Math.max(0, amount - discount);
 
   return (
-    <div style={{ background: '#181A20', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ background: '#23272F', borderRadius: '1.2rem', padding: '2.5rem 2rem', boxShadow: '0 2px 16px rgba(0,0,0,0.12)', minWidth: '320px', maxWidth: '400px', width: '100%', color: '#E5E7EB', textAlign: 'center' }}>
-        <h2 style={{ color: '#2ECC71', fontWeight: 700, fontSize: '2rem', marginBottom: '1.2rem' }}>Payment for {planObj.name}</h2>
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+      <div className="bg-gray-800 rounded-xl shadow-2xl p-8 w-full max-w-md">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate('/plans')}
+          className="mb-4 text-sm text-blue-400 hover:underline"
+        >
+          ← Back to Plans
+        </button>
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <h2 className="text-2xl font-bold text-emerald-400 mb-2">
+            Complete Your Payment
+          </h2>
+          <p className="text-gray-400">For {planObj.name} Plan</p>
+        </div>
+
         {status === 'idle' && (
           <>
-            <div style={{ marginBottom: '1.2rem' }}>
-              <b>Plan:</b> {planObj.name}<br />
-              <b>Amount:</b> ₹{amount}
+            {/* Plan Details */}
+            <div className="bg-gray-700 rounded-lg p-4 mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-gray-300">Plan:</span>
+                <span className="font-medium">{planObj.name}</span>
+              </div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-gray-300">Amount:</span>
+                <span>₹{amount}</span>
+              </div>
+              {discount > 0 && (
+                <>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-300">Discount:</span>
+                    <span className="text-emerald-400 font-medium">-₹{discount}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-gray-600">
+                    <span className="text-gray-300 font-medium">Total:</span>
+                    <span className="text-white font-bold">₹{totalAmount}</span>
+                  </div>
+                </>
+              )}
             </div>
-            <div style={{ marginBottom: '1.2rem' }}>
-              <label style={{ fontWeight: 600, marginRight: 10 }}>Payment Method:</label>
-              <label style={{ marginRight: 15 }}>
-                <input type="radio" name="method" value="scan" checked={selectedMethod === 'scan'} onChange={() => setSelectedMethod('scan')} /> Scan & Pay
-              </label>
-              <label>
-                <input type="radio" name="method" value="upi" checked={selectedMethod === 'upi'} onChange={() => setSelectedMethod('upi')} /> UPI ID
-              </label>
+
+            {/* Coupon Section */}
+            <div className="mb-6">
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Coupon code"
+                  value={coupon}
+                  onChange={e => {
+                    setCoupon(e.target.value);
+                    setCouponMsg('');
+                    setDiscount(0);
+                  }}
+                  className="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  disabled={applyingCoupon || discount > 0}
+                />
+                {discount > 0 ? (
+                  <button
+                    onClick={() => {
+                      setCoupon('');
+                      setDiscount(0);
+                      setCouponMsg('');
+                    }}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  >
+                    Remove
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleApplyCoupon}
+                    disabled={applyingCoupon || !coupon}
+                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  >
+                    {applyingCoupon ? '...' : 'Apply'}
+                  </button>
+                )}
+              </div>
+              {couponMsg && (
+                <div className={`text-sm flex items-center gap-2 ${couponMsg.includes('off') ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {couponMsg.includes('off') ? (
+                    <span>✔️</span>
+                  ) : (
+                    <span>❌</span>
+                  )}
+                  {couponMsg}
+                </div>
+              )}
             </div>
-            {selectedMethod === 'scan' && (
-              <div style={{ marginBottom: '1.2rem' }}>
-                <div style={{ marginBottom: 10 }}><b>Scan this QR code to pay</b></div>
-                <QRCode value={upiString} size={160} bgColor="#23272F" fgColor="#2ECC71" />
-                <div style={{ marginTop: 10, fontSize: '0.95rem', color: '#A0AEC0' }}>UPI: {UPI_ID}</div>
+
+            {/* Payment Instructions */}
+            <div className="bg-gray-700 rounded-lg p-4 mb-6">
+              <h3 className="text-gray-300 text-sm font-medium mb-2">PAYMENT INSTRUCTIONS</h3>
+              <div className="mb-3">
+                <p className="text-gray-400 text-sm mb-1">Send payment to this UPI ID:</p>
+                <div className="bg-gray-800 p-3 rounded-lg flex items-center justify-between">
+                  <span className="font-mono text-emerald-400">{UPI_ID}</span>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(UPI_ID);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 1500);
+                    }}
+                    className="text-blue-400 hover:text-blue-300 text-sm"
+                  >
+                    {copied ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label htmlFor="transactionId" className="block text-gray-400 text-sm mb-1">
+                  Transaction/Reference ID
+                </label>
+                <input
+                  id="transactionId"
+                  type="text"
+                  placeholder="Enter ID from payment confirmation"
+                  value={transactionId}
+                  onChange={e => setTransactionId(e.target.value)}
+                  className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <p className="text-gray-500 text-xs mt-1">
+                  After successful payment, enter the transaction ID from your confirmation.
+                </p>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              onClick={handlePayment}
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-gray-900 font-bold py-3 px-4 rounded-lg transition-colors shadow-lg"
+              disabled={!transactionId || status === 'processing'}
+            >
+              {status === 'processing' ? 'Processing...' : 'Confirm Payment'}
+            </button>
+
+            {error && (
+              <div className="mt-4 text-red-400 text-center text-sm">
+                {error}
               </div>
             )}
-            {selectedMethod === 'upi' && (
-              <div style={{ marginBottom: '1.2rem' }}>
-                <div style={{ marginBottom: 10 }}><b>Pay to this UPI ID:</b></div>
-                <div style={{ fontSize: '1.1rem', color: '#2ECC71', fontWeight: 700 }}>{UPI_ID}</div>
-              </div>
-            )}
-            <div style={{ marginBottom: '1.2rem' }}>
-              <input
-                type="text"
-                placeholder="Enter Transaction ID"
-                value={transactionId}
-                onChange={e => setTransactionId(e.target.value)}
-                style={{ width: '100%', padding: '0.7rem', borderRadius: '0.4rem', border: '1px solid #333', background: '#181A20', color: '#E5E7EB', marginBottom: 5 }}
-              />
-              <div style={{ fontSize: '0.95rem', color: '#A0AEC0' }}>After payment, enter your transaction/reference ID above.</div>
-            </div>
-            <button onClick={handlePayment} style={{ background: '#2ECC71', color: '#181A20', border: 'none', borderRadius: '0.5rem', padding: '0.9rem 2rem', fontWeight: 700, fontSize: '1.1rem', cursor: 'pointer' }}>Submit Payment</button>
-            {error && <div style={{ color: '#FF6B35', marginTop: '1rem' }}>{error}</div>}
           </>
         )}
-        {status === 'processing' && <div>Processing payment...</div>}
-        {status === 'success' && subscription && (
-          <div style={{ marginTop: '1.5rem' }}>
-            <div style={{ color: '#2ECC71', fontWeight: 700, marginBottom: '1rem' }}>Subscription Created!</div>
-            <div><b>Plan:</b> {subscription.plan}</div>
-            <div><b>Subscription ID:</b> {subscription.uniqueId}</div>
-            <div><b>Status:</b> {subscription.status}</div>
-            <div style={{ marginTop: '1.2rem' }}>
-              <button 
-                onClick={() => navigate('/dashboard/purchases')} 
-                style={{ 
-                  background: '#0057D9', 
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '0.5rem', 
-                  padding: '0.7rem 1.5rem', 
-                  fontWeight: 700, 
-                  fontSize: '1rem', 
-                  cursor: 'pointer' 
-                }}
-              >
-                Go to My Purchases
-              </button>
-            </div>
+
+        {status === 'processing' && (
+          <div className="flex flex-col items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500 mb-4"></div>
+            <p className="text-gray-300">Processing your payment...</p>
           </div>
         )}
-        {status === 'error' && <div style={{ color: '#FF6B35', marginTop: '1rem' }}>{error}</div>}
+
+        {status === 'success' && subscription && (
+          <div className="text-center py-6">
+            <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-emerald-400 mb-2">Payment Successful!</h3>
+            <div className="bg-gray-700 rounded-lg p-4 mb-6 text-left space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Plan:</span>
+                <span>{subscription.plan}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Subscription ID:</span>
+                <span className="font-mono">{subscription.uniqueId}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Status:</span>
+                <span className="capitalize">{subscription.status}</span>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/dashboard/purchases')}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            >
+              View My Purchases
+            </button>
+          </div>
+        )}
+
+        {status === 'error' && (
+          <div className="text-center py-6">
+            <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-red-400 mb-2">Payment Failed</h3>
+            <p className="text-gray-300 mb-6">{error}</p>
+            <button
+              onClick={() => setStatus('idle')}
+              className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default Payment; 
+export default Payment;

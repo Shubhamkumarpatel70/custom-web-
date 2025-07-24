@@ -40,6 +40,7 @@ const AdminNewsletter = () => {
               <tr style={{ background: '#181A20' }}>
                 <th style={{ padding: '0.7rem', borderBottom: '1px solid #333' }}>Email</th>
                 <th style={{ padding: '0.7rem', borderBottom: '1px solid #333' }}>Subscribed At</th>
+                <th style={{ padding: '0.7rem', borderBottom: '1px solid #333' }}>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -47,6 +48,7 @@ const AdminNewsletter = () => {
                 <tr key={sub._id}>
                   <td style={{ padding: '0.7rem', borderBottom: '1px solid #333' }}>{sub.email}</td>
                   <td style={{ padding: '0.7rem', borderBottom: '1px solid #333' }}>{new Date(sub.createdAt).toLocaleString()}</td>
+                  <td style={{ padding: '0.7rem', borderBottom: '1px solid #333', fontWeight: 700, color: sub.status === 'subscribed' ? '#2ECC71' : '#FF6B35' }}>{sub.status === 'subscribed' ? 'Subscribed' : 'Unsubscribed'}</td>
                 </tr>
               ))}
             </tbody>

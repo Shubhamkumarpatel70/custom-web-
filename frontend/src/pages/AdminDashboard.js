@@ -13,6 +13,7 @@ import AdminPlans from './AdminPlans';
 import AdminContacts from './AdminContacts';
 import AdminRenewalRequests from './AdminRenewalRequests';
 import AdminNewsletter from './AdminNewsletter';
+import AdminCoupons from './AdminCoupons';
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -45,6 +46,8 @@ const AdminDashboard = () => {
         return <AdminNewsletter />;
       case 'renewal-requests':
         return <AdminRenewalRequests />;
+      case 'coupons':
+        return <AdminCoupons />;
       case 'help':
         return <AdminHelp />;
       default:

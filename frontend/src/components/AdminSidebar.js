@@ -12,6 +12,7 @@ const navItems = [
   { id: 'newsletter', label: 'Newsletter Subs', icon: '📧' },
   { id: 'renewal-requests', label: 'Renewal Requests', icon: '🔄' },
   { id: 'help', label: 'Help', icon: '🆘' },
+  { id: 'coupons', label: 'Coupons', icon: '🏷️' },
 ];
 
 const AdminSidebar = ({ onLogout, activeTab, setActiveTab }) => {

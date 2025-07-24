@@ -7,17 +7,23 @@ function Footer() {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterMsg, setNewsletterMsg] = useState('');
   const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [wantsNewsletter, setWantsNewsletter] = useState('yes');
 
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
     setNewsletterMsg('');
     setNewsletterLoading(true);
     try {
-      const res = await axios.post('/api/auth/newsletter/subscribe', { email: newsletterEmail });
-      setNewsletterMsg('Subscribed successfully!');
+      if (wantsNewsletter === 'yes') {
+        const res = await axios.post('/api/auth/newsletter/subscribe', { email: newsletterEmail });
+        setNewsletterMsg('Subscribed successfully!');
+      } else {
+        const res = await axios.post('/api/auth/newsletter/unsubscribe', { email: newsletterEmail });
+        setNewsletterMsg('Unsubscribed successfully!');
+      }
       setNewsletterEmail('');
     } catch (err) {
-      setNewsletterMsg(err.response?.data?.message || 'Could not subscribe.');
+      setNewsletterMsg(err.response?.data?.message || 'Could not process your request.');
     }
     setNewsletterLoading(false);
   };
@@ -89,8 +95,17 @@ function Footer() {
                   onChange={e => setNewsletterEmail(e.target.value)}
                   disabled={newsletterLoading}
                 />
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', margin: '0.5rem 0' }}>
+                  <span style={{ color: '#E5E7EB', fontWeight: 500 }}>Receive Newsletter?</span>
+                  <label style={{ color: '#E5E7EB' }}>
+                    <input type="radio" name="wantsNewsletter" value="yes" checked={wantsNewsletter === 'yes'} onChange={() => setWantsNewsletter('yes')} disabled={newsletterLoading} /> Yes
+                  </label>
+                  <label style={{ color: '#E5E7EB' }}>
+                    <input type="radio" name="wantsNewsletter" value="no" checked={wantsNewsletter === 'no'} onChange={() => setWantsNewsletter('no')} disabled={newsletterLoading} /> No
+                  </label>
+                </div>
                 <button type="submit" className="newsletter-button" disabled={newsletterLoading}>
-                  {newsletterLoading ? 'Subscribing...' : 'Subscribe'}
+                  {newsletterLoading ? (wantsNewsletter === 'yes' ? 'Subscribing...' : 'Unsubscribing...') : (wantsNewsletter === 'yes' ? 'Subscribe' : 'Unsubscribe')}
                 </button>
               </form>
               {newsletterMsg && (
