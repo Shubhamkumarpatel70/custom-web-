@@ -4,12 +4,6 @@ import axios from '../axios';
 import { UserContext } from '../UserContext';
 import QRCode from 'qrcode.react';
 
-const planDisplayNames = {
-  starter: 'Starter',
-  premium: 'Premium',
-  pro: 'Pro',
-};
-
 const UPI_ID = 'customweb@upi';
 
 const Payment = () => {
@@ -22,6 +16,7 @@ const Payment = () => {
   const [selectedMethod, setSelectedMethod] = useState('scan');
   const [transactionId, setTransactionId] = useState('');
   const [amount, setAmount] = useState('');
+  const [planObj, setPlanObj] = useState(null);
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -29,13 +24,16 @@ const Payment = () => {
         const res = await axios.get('/api/auth/plans');
         setPlans(res.data.plans);
         const found = res.data.plans.find(p => p.name.toLowerCase() === plan.toLowerCase());
-        if (found) setAmount(found.price);
+        if (found) {
+          setAmount(found.price);
+          setPlanObj(found);
+        }
       } catch {}
     };
     fetchPlans();
   }, [plan]);
 
-  if (!['starter', 'premium', 'pro'].includes(plan)) {
+  if (!planObj) {
     return <div style={{ color: '#FF6B35', textAlign: 'center', marginTop: '3rem' }}>Invalid plan selected.</div>;
   }
 
@@ -48,7 +46,7 @@ const Payment = () => {
     setError('');
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('/api/auth/subscribe', { plan: plan.toLowerCase(), transactionId, method: selectedMethod }, {
+      const res = await axios.post('/api/auth/subscribe', { plan: planObj.name.toLowerCase(), transactionId, method: selectedMethod }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSubscription(res.data.subscription);
@@ -59,16 +57,16 @@ const Payment = () => {
     }
   };
 
-  const upiString = `upi://pay?pa=${UPI_ID}&pn=Custom Web&am=${amount}&cu=INR&tn=${planDisplayNames[plan]} Plan`;
+  const upiString = `upi://pay?pa=${UPI_ID}&pn=Custom Web&am=${amount}&cu=INR&tn=${planObj.name} Plan`;
 
   return (
     <div style={{ background: '#181A20', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ background: '#23272F', borderRadius: '1.2rem', padding: '2.5rem 2rem', boxShadow: '0 2px 16px rgba(0,0,0,0.12)', minWidth: '320px', maxWidth: '400px', width: '100%', color: '#E5E7EB', textAlign: 'center' }}>
-        <h2 style={{ color: '#2ECC71', fontWeight: 700, fontSize: '2rem', marginBottom: '1.2rem' }}>Payment for {planDisplayNames[plan]}</h2>
+        <h2 style={{ color: '#2ECC71', fontWeight: 700, fontSize: '2rem', marginBottom: '1.2rem' }}>Payment for {planObj.name}</h2>
         {status === 'idle' && (
           <>
             <div style={{ marginBottom: '1.2rem' }}>
-              <b>Plan:</b> {planDisplayNames[plan]}<br />
+              <b>Plan:</b> {planObj.name}<br />
               <b>Amount:</b> ₹{amount}
             </div>
             <div style={{ marginBottom: '1.2rem' }}>
@@ -111,7 +109,7 @@ const Payment = () => {
         {status === 'success' && subscription && (
           <div style={{ marginTop: '1.5rem' }}>
             <div style={{ color: '#2ECC71', fontWeight: 700, marginBottom: '1rem' }}>Subscription Created!</div>
-            <div><b>Plan:</b> {planDisplayNames[subscription.plan]}</div>
+            <div><b>Plan:</b> {subscription.plan}</div>
             <div><b>Subscription ID:</b> {subscription.uniqueId}</div>
             <div><b>Status:</b> {subscription.status}</div>
             <div style={{ marginTop: '1.2rem' }}>
