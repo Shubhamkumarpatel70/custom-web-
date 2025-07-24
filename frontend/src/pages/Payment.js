@@ -50,7 +50,8 @@ const Payment = () => {
     setCouponMsg('');
     setApplyingCoupon(true);
     try {
-      const res = await axios.post('/api/auth/coupons/apply', { code: coupon });
+      const token = localStorage.getItem('token');
+      const res = await axios.post('/api/auth/coupons/apply', { code: coupon }, token ? { headers: { Authorization: `Bearer ${token}` } } : {});
       setDiscount(res.data.amount);
       setCouponMsg(`Coupon applied! ₹${res.data.amount} off.`);
     } catch (err) {
@@ -68,10 +69,10 @@ const Payment = () => {
     setStatus('processing');
     setError('');
     try {
-      if (coupon && discount > 0) {
-        await axios.post('/api/auth/coupons/apply', { code: coupon, use: true });
-      }
       const token = localStorage.getItem('token');
+      if (coupon && discount > 0) {
+        await axios.post('/api/auth/coupons/apply', { code: coupon, use: true }, token ? { headers: { Authorization: `Bearer ${token}` } } : {});
+      }
       const res = await axios.post(
         '/api/auth/subscribe', 
         { 
@@ -79,9 +80,7 @@ const Payment = () => {
           transactionId, 
           method: 'upi' 
         }, 
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
+        token ? { headers: { Authorization: `Bearer ${token}` } } : {}
       );
       setSubscription(res.data.subscription);
       setStatus('success');
