@@ -1,8 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from '../axios';
 
 function Footer() {
   const currentYear = new Date().getFullYear();
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterMsg, setNewsletterMsg] = useState('');
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    setNewsletterMsg('');
+    setNewsletterLoading(true);
+    try {
+      const res = await axios.post('/api/auth/newsletter/subscribe', { email: newsletterEmail });
+      setNewsletterMsg('Subscribed successfully!');
+      setNewsletterEmail('');
+    } catch (err) {
+      setNewsletterMsg(err.response?.data?.message || 'Could not subscribe.');
+    }
+    setNewsletterLoading(false);
+  };
 
   return (
     <>
@@ -61,17 +79,25 @@ function Footer() {
               <p className="newsletter-text">
                 Get updates on our latest projects and web development tips.
               </p>
-              <form className="newsletter-form">
+              <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>
                 <input 
                   type="email" 
                   placeholder="Your email address" 
                   className="newsletter-input" 
                   required 
+                  value={newsletterEmail}
+                  onChange={e => setNewsletterEmail(e.target.value)}
+                  disabled={newsletterLoading}
                 />
-                <button type="submit" className="newsletter-button">
-                  Subscribe
+                <button type="submit" className="newsletter-button" disabled={newsletterLoading}>
+                  {newsletterLoading ? 'Subscribing...' : 'Subscribe'}
                 </button>
               </form>
+              {newsletterMsg && (
+                <div style={{ color: newsletterMsg.includes('success') ? '#2ECC71' : '#FF6B35', marginTop: '0.5rem', fontWeight: 600 }}>
+                  {newsletterMsg}
+                </div>
+              )}
               <div className="social-links">
                 <a href="#" className="social-link" aria-label="Facebook">
                   <svg viewBox="0 0 24 24" width="24" height="24">

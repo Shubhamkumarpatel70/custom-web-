@@ -18,7 +18,8 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://custom-web-frontend.onrender.com'
+    'https://custom-web-frontend.onrender.com',
+    'https://capitalcove.me'
   ],
   credentials: true
 }));
@@ -102,7 +103,8 @@ const io = new Server(server, {
   cors: {
     origin: [
       'http://localhost:3000',
-      'https://custom-web-frontend.onrender.com'
+      'https://custom-web-frontend.onrender.com',
+      'https://capitalcove.me'
     ],
     methods: ['GET', 'POST'],
     credentials: true
