@@ -75,28 +75,44 @@ function adminMiddleware(req, res, next) {
 
 // Create a new subscription (after payment)
 router.post('/subscribe', authMiddleware, async (req, res) => {
-  let { plan } = req.body;
-  plan = plan && typeof plan === 'string' ? plan.toLowerCase() : '';
-  if (!['starter', 'premium', 'pro'].includes(plan)) {
-    return res.status(400).json({ message: 'Invalid plan.' });
+  let { plan, transactionId, method } = req.body;
+  
+  console.log('Subscription request:', { plan, transactionId, method });
+  
+  // More flexible plan validation
+  if (!plan || typeof plan !== 'string') {
+    return res.status(400).json({ message: 'Plan is required.' });
   }
-  const planDoc = await Plan.findOne({ name: new RegExp('^' + plan + '$', 'i') });
+  
+  // Find plan by name (case-insensitive)
+  const planDoc = await Plan.findOne({ 
+    name: { $regex: new RegExp('^' + plan + '$', 'i') }
+  });
+  
   if (!planDoc) {
+    console.log('Plan not found:', plan);
+    console.log('Available plans:', await Plan.find().select('name'));
     return res.status(400).json({ message: 'Plan not found.' });
   }
+  
+  // Use the plan name from database
+  const planName = planDoc.name.toLowerCase();
   const uniqueId = 'SUB-' + Math.random().toString(36).substr(2, 9).toUpperCase();
   const now = new Date();
   const expiresAt = new Date(now.getTime() + planDoc.duration * 24 * 60 * 60 * 1000);
   try {
     const subscription = await Subscription.create({
       user: req.user.id,
-      plan,
+      plan: planName,
       uniqueId,
       status: 'pending',
       expiresAt,
+      transactionId: transactionId || null,
+      paymentMethod: method || 'upi',
     });
     res.status(201).json({ subscription });
   } catch (err) {
+    console.error('Subscription creation error:', err);
     res.status(500).json({ message: 'Could not create subscription.' });
   }
 });

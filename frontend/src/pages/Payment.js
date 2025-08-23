@@ -20,6 +20,8 @@ const Payment = () => {
   const [discount, setDiscount] = useState(0);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showQR, setShowQR] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('upi');
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -108,7 +110,7 @@ const Payment = () => {
         { 
           plan: planObj.name, 
           transactionId, 
-          method: 'upi' 
+          method: paymentMethod 
         }, 
         token ? { headers: { Authorization: `Bearer ${token}` } } : {}
       );
@@ -121,6 +123,22 @@ const Payment = () => {
   };
 
   const totalAmount = Math.max(0, amount - discount);
+
+  // Generate UPI QR code data
+  const generateUPIQR = () => {
+    const upiData = `upi://pay?pa=${UPI_ID}&pn=CustomWeb&am=${totalAmount}&cu=INR&tn=${planObj?.name} Plan Payment`;
+    return upiData;
+  };
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
@@ -164,6 +182,33 @@ const Payment = () => {
                   </div>
                 </>
               )}
+            </div>
+
+            {/* Payment Method Selection */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-white mb-3">Payment Method</h3>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setPaymentMethod('upi')}
+                  className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
+                    paymentMethod === 'upi' 
+                      ? 'bg-blue-600 border-blue-500 text-white' 
+                      : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  UPI Payment
+                </button>
+                <button
+                  onClick={() => setPaymentMethod('qr')}
+                  className={`flex-1 py-2 px-4 rounded-lg border transition-colors ${
+                    paymentMethod === 'qr' 
+                      ? 'bg-blue-600 border-blue-500 text-white' 
+                      : 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  Scan & Pay
+                </button>
+              </div>
             </div>
 
             {/* Coupon Section */}
@@ -217,22 +262,48 @@ const Payment = () => {
             {/* Payment Instructions */}
             <div className="bg-gray-700 rounded-lg p-4 mb-6">
               <h3 className="text-gray-300 text-sm font-medium mb-2">PAYMENT INSTRUCTIONS</h3>
-              <div className="mb-3">
-                <p className="text-gray-400 text-sm mb-1">Send payment to this UPI ID:</p>
-                <div className="bg-gray-800 p-3 rounded-lg flex items-center justify-between">
-                  <span className="font-mono text-emerald-400">{UPI_ID}</span>
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(UPI_ID);
-                      setCopied(true);
-                      setTimeout(() => setCopied(false), 1500);
-                    }}
-                    className="text-blue-400 hover:text-blue-300 text-sm"
-                  >
-                    {copied ? 'Copied!' : 'Copy'}
-                  </button>
+              
+              {paymentMethod === 'qr' ? (
+                <>
+                  <div className="mb-3">
+                    <p className="text-gray-400 text-sm mb-2">Scan QR code to pay ₹{totalAmount}:</p>
+                    <div className="bg-white p-4 rounded-lg flex justify-center">
+                      <div className="text-center">
+                        <div className="w-40 h-40 bg-gray-200 rounded-lg flex items-center justify-center mb-2">
+                          <span className="text-gray-500 text-xs">QR Code for ₹{totalAmount}</span>
+                        </div>
+                        <p className="text-xs text-gray-600">Scan with any UPI app</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mb-3">
+                    <p className="text-gray-400 text-sm mb-1">Or pay manually:</p>
+                    <div className="bg-gray-800 p-3 rounded-lg flex items-center justify-between">
+                      <span className="font-mono text-emerald-400">{UPI_ID}</span>
+                      <button 
+                        onClick={() => copyToClipboard(UPI_ID)}
+                        className="text-blue-400 hover:text-blue-300 text-sm"
+                      >
+                        {copied ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="mb-3">
+                  <p className="text-gray-400 text-sm mb-1">Send payment to this UPI ID:</p>
+                  <div className="bg-gray-800 p-3 rounded-lg flex items-center justify-between">
+                    <span className="font-mono text-emerald-400">{UPI_ID}</span>
+                    <button 
+                      onClick={() => copyToClipboard(UPI_ID)}
+                      className="text-blue-400 hover:text-blue-300 text-sm"
+                    >
+                      {copied ? 'Copied!' : 'Copy'}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
+              
               <div>
                 <label htmlFor="transactionId" className="block text-gray-400 text-sm mb-1">
                   Transaction/Reference ID

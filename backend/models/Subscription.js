@@ -8,6 +8,9 @@ const subscriptionSchema = new mongoose.Schema({
   rejectionReason: { type: String },
   expiresAt: { type: Date },
   canceled: { type: Boolean, default: false },
+  // Payment fields
+  transactionId: { type: String },
+  paymentMethod: { type: String, enum: ['upi', 'card', 'netbanking'], default: 'upi' },
   // Renewal request fields
   renewalRequested: { type: Boolean, default: false },
   renewalRequestDate: { type: Date },
