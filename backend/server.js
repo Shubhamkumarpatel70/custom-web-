@@ -33,7 +33,7 @@ const authLimiter = rateLimit({
 // Apply rate limiting to auth routes
 app.use('/api/auth', authLimiter);
 
-// CORS configuration
+// CORS configuration - More permissive for development
 app.use(cors({
   origin: function (origin, callback) {
     const allowedOrigins = [
@@ -51,6 +51,12 @@ app.use(cors({
       return callback(null, true);
     }
     
+    // Allow all origins for now to debug the issue
+    console.log('Origin allowed (debug mode):', origin);
+    callback(null, true);
+    
+    // Uncomment below for production security
+    /*
     if (allowedOrigins.indexOf(origin) !== -1) {
       console.log('Origin allowed:', origin);
       callback(null, true);
@@ -58,6 +64,7 @@ app.use(cors({
       console.log('Origin not allowed:', origin);
       callback(new Error('Not allowed by CORS'));
     }
+    */
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -98,7 +105,7 @@ app.use((req, res, next) => {
 // Handle preflight requests
 app.options('*', cors());
 
-// Manual CORS headers as backup
+// Manual CORS headers as backup - More permissive for debugging
 app.use((req, res, next) => {
   const allowedOrigins = [
     'http://localhost:3000',
@@ -111,11 +118,10 @@ app.use((req, res, next) => {
   console.log('Manual CORS - Request Origin:', origin);
   console.log('Manual CORS - Request Method:', req.method);
   
-  if (allowedOrigins.includes(origin)) {
+  // Allow all origins for debugging
+  if (origin) {
     res.header('Access-Control-Allow-Origin', origin);
-    console.log('Manual CORS - Origin allowed:', origin);
-  } else {
-    console.log('Manual CORS - Origin not in allowed list:', origin);
+    console.log('Manual CORS - Origin allowed (debug mode):', origin);
   }
   
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
