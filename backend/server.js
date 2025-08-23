@@ -146,6 +146,19 @@ app.get('/api/cors-test', (req, res) => {
   });
 });
 
+// Health check route
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK',
+    message: 'Backend is running',
+    timestamp: new Date().toISOString(),
+    cors: {
+      origin: req.headers.origin,
+      method: req.method
+    }
+  });
+});
+
 // JWT middleware
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
