@@ -38,9 +38,13 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'https://custom-web-frontend.onrender.com',
-    'https://capitalcove.me'
+    'https://capitalcove.me',
+    'https://www.capitalcove.me'
   ],
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
 }));
 
 // Body parsing middleware with size limits
@@ -70,6 +74,9 @@ app.use((req, res, next) => {
   });
   next();
 });
+
+// Handle preflight requests
+app.options('*', cors());
 
 // Placeholder route
 app.get('/', (req, res) => {
