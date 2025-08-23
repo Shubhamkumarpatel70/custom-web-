@@ -43,12 +43,19 @@ app.use(cors({
       'https://www.capitalcove.me'
     ];
     
+    console.log('CORS Origin Check:', origin);
+    
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      console.log('No origin provided, allowing request');
+      return callback(null, true);
+    }
     
     if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('Origin allowed:', origin);
       callback(null, true);
     } else {
+      console.log('Origin not allowed:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -101,8 +108,14 @@ app.use((req, res, next) => {
   ];
   
   const origin = req.headers.origin;
+  console.log('Manual CORS - Request Origin:', origin);
+  console.log('Manual CORS - Request Method:', req.method);
+  
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
+    console.log('Manual CORS - Origin allowed:', origin);
+  } else {
+    console.log('Manual CORS - Origin not in allowed list:', origin);
   }
   
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
@@ -110,6 +123,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Credentials', 'true');
   
   if (req.method === 'OPTIONS') {
+    console.log('Manual CORS - Handling OPTIONS request');
     res.sendStatus(200);
   } else {
     next();
@@ -119,6 +133,17 @@ app.use((req, res, next) => {
 // Placeholder route
 app.get('/', (req, res) => {
   res.send('API is running...');
+});
+
+// CORS test route
+app.get('/api/cors-test', (req, res) => {
+  console.log('CORS Test - Origin:', req.headers.origin);
+  console.log('CORS Test - Method:', req.method);
+  res.json({ 
+    message: 'CORS test successful',
+    origin: req.headers.origin,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // JWT middleware
