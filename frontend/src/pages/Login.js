@@ -42,41 +42,56 @@ function Login() {
     setLoading(true);
     setMessage('');
     
+    // Clear any previous error messages
+    setMessage('');
+    
     try {
-      // Add a small delay to prevent rapid clicking
-      submitTimeoutRef.current = setTimeout(async () => {
-        const res = await axios.post('/api/auth/login', { email: email.trim(), password });
-        
-        // Store token immediately for faster subsequent requests
-        localStorage.setItem('token', res.data.token);
-        
-        // Update user context
-        setUser(res.data.user);
-        
-        // Navigate based on role
-        if (res.data.user && res.data.user.role === 'admin') {
-          navigate('/admin-dashboard');
-        } else {
-          navigate('/dashboard');
-        }
-      }, 100);
+      // Remove unnecessary delay and make login faster
+      const res = await axios.post('/api/auth/login', { email: email.trim(), password });
+      
+      // Store token immediately for faster subsequent requests
+      localStorage.setItem('token', res.data.token);
+      
+      // Update user context
+      setUser(res.data.user);
+      
+      // Navigate based on role
+      if (res.data.user && res.data.user.role === 'admin') {
+        navigate('/admin-dashboard');
+      } else {
+        navigate('/dashboard');
+      }
       
     } catch (err) {
       setLoading(false);
       setIsSubmitting(false);
       
-      // Better error handling
+      // Better error handling with more specific messages
       if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
         setMessage('Login timeout. Please check your connection and try again.');
       } else if (err.response?.status === 400) {
         setMessage(err.response.data.message || 'Invalid credentials.');
+      } else if (err.response?.status === 401) {
+        setMessage('Authentication failed. Please check your credentials.');
+      } else if (err.response?.status === 429) {
+        setMessage('Too many login attempts. Please wait a moment and try again.');
       } else if (err.response?.status >= 500) {
         setMessage('Server error. Please try again later.');
+      } else if (err.message === 'Network Error') {
+        setMessage('Network error. Please check your internet connection.');
       } else {
         setMessage('Login failed. Please try again.');
       }
     }
   }, [email, password, isSubmitting, loading, validateForm, setUser, navigate]);
+
+  // Reset loading state on successful login
+  React.useEffect(() => {
+    if (!isSubmitting && !loading) {
+      setLoading(false);
+      setIsSubmitting(false);
+    }
+  }, [isSubmitting, loading]);
 
   // Cleanup timeout on unmount
   React.useEffect(() => {

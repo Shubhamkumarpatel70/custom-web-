@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
-  timeout: 10000, // 10 second timeout
+  baseURL: process.env.REACT_APP_API_URL || 'https://custom-web-backend.onrender.com',
+  timeout: 15000, // Increased timeout to 15 seconds
   headers: {
     'Content-Type': 'application/json',
   },
@@ -44,8 +44,22 @@ instance.interceptors.response.use(
     // Retry logic for network errors
     if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
       console.log('Request timeout, retrying...');
-      // You can implement retry logic here if needed
+      
+      // Retry once for timeout errors
+      if (error.config && !error.config._retry) {
+        error.config._retry = true;
+        console.log('Retrying request:', error.config.url);
+        return instance.request(error.config);
+      }
     }
+    
+    // Log error details for debugging
+    console.error('API Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      message: error.message
+    });
     
     return Promise.reject(error);
   }

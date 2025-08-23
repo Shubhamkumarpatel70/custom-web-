@@ -21,13 +21,14 @@ const app = express();
 app.use(helmet());
 app.use(compression()); // Compress responses
 
-// Rate limiting for auth endpoints
+// Rate limiting for auth endpoints - More lenient
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 requests per windowMs for auth routes
+  max: 20, // Increased limit to 20 requests per 15 minutes
   message: 'Too many login attempts, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  skipSuccessfulRequests: true, // Don't count successful requests
 });
 
 // Apply rate limiting to auth routes
@@ -154,10 +155,16 @@ app.get('/api/cors-test', (req, res) => {
 
 // Health check route
 app.get('/api/health', (req, res) => {
+  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  
   res.json({ 
     status: 'OK',
     message: 'Backend is running',
     timestamp: new Date().toISOString(),
+    database: {
+      status: dbStatus,
+      readyState: mongoose.connection.readyState
+    },
     cors: {
       origin: req.headers.origin,
       method: req.method
@@ -187,9 +194,17 @@ mongoose.connect(process.env.MONGO_URI, {
   serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
   socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
   bufferCommands: false, // Disable mongoose buffering
+  connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
+  heartbeatFrequencyMS: 30000, // Send a heartbeat every 30 seconds
 })
-.then(() => console.log('MongoDB connected'))
-.catch((err) => console.error('MongoDB connection error:', err));
+.then(() => {
+  console.log('MongoDB connected successfully');
+  console.log('Connection state:', mongoose.connection.readyState);
+})
+.catch((err) => {
+  console.error('MongoDB connection error:', err);
+  process.exit(1); // Exit if database connection fails
+});
 
 // Handle MongoDB connection errors
 mongoose.connection.on('error', (err) => {

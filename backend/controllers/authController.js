@@ -58,7 +58,7 @@ exports.loginUser = async (req, res) => {
     }
     
     // Use lean() for better performance when we don't need the full document
-    const user = await User.findOne({ email: trimmedEmail }).select('+password').lean();
+    const user = await User.findOne({ email: trimmedEmail }).select('+password').lean().exec();
     
     if (!user) {
       return res.status(400).json({ message: 'Invalid email or password.' });
@@ -108,6 +108,16 @@ exports.loginUser = async (req, res) => {
     
   } catch (err) {
     console.error('Login error:', err);
+    
+    // More specific error messages
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Invalid input data.' });
+    } else if (err.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid data format.' });
+    } else if (err.code === 11000) {
+      return res.status(400).json({ message: 'User already exists.' });
+    }
+    
     res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 };
