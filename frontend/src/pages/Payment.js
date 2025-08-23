@@ -26,12 +26,30 @@ const Payment = () => {
       try {
         const res = await axios.get('/api/auth/plans');
         setPlans(res.data.plans);
-        const found = res.data.plans.find(p => p.name.toLowerCase() === plan.toLowerCase());
+        
+        // More flexible plan matching
+        const found = res.data.plans.find(p => {
+          const planName = p.name.toLowerCase();
+          const urlPlan = plan.toLowerCase();
+          const cleanPlanName = planName.replace(/\s+/g, '');
+          const cleanUrlPlan = urlPlan.replace(/\s+/g, '');
+          
+          return planName === urlPlan || 
+                 cleanPlanName === cleanUrlPlan ||
+                 planName.includes(urlPlan) || 
+                 urlPlan.includes(planName);
+        });
+        
         if (found) {
           setAmount(found.price);
           setPlanObj(found);
+        } else {
+          console.log('Available plans:', res.data.plans.map(p => p.name));
+          console.log('Looking for plan:', plan);
         }
-      } catch {}
+      } catch (err) {
+        console.error('Error fetching plans:', err);
+      }
     };
     fetchPlans();
   }, [plan]);
@@ -40,7 +58,19 @@ const Payment = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900">
         <div className="text-center text-red-500 text-xl font-medium">
-          Invalid plan selected.
+          <div className="mb-4">Invalid plan selected.</div>
+          <div className="text-sm text-gray-400 mb-4">
+            Plan: "{plan}" not found. Available plans:
+          </div>
+          <div className="text-sm text-gray-300 mb-4">
+            {plans.map(p => p.name).join(', ')}
+          </div>
+          <button
+            onClick={() => navigate('/plans')}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            Back to Plans
+          </button>
         </div>
       </div>
     );
@@ -76,7 +106,7 @@ const Payment = () => {
       const res = await axios.post(
         '/api/auth/subscribe', 
         { 
-          plan: planObj.name.toLowerCase(), 
+          plan: planObj.name, 
           transactionId, 
           method: 'upi' 
         }, 

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from '../axios';
 import { UserContext } from '../UserContext';
@@ -9,29 +9,90 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { setUser } = useContext(UserContext);
+  const submitTimeoutRef = useRef(null);
 
-  const handleSubmit = async e => {
+  // Debounced form validation
+  const validateForm = useCallback(() => {
+    return email.trim() && password.trim() && email.includes('@');
+  }, [email, password]);
+
+  // Optimized submit handler with debouncing
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
+    
+    // Prevent multiple submissions
+    if (isSubmitting || loading) return;
+    
+    // Clear any existing timeout
+    if (submitTimeoutRef.current) {
+      clearTimeout(submitTimeoutRef.current);
+    }
+    
+    // Basic validation
+    if (!validateForm()) {
+      setMessage('Please enter valid email and password.');
+      return;
+    }
+    
+    setIsSubmitting(true);
     setLoading(true);
     setMessage('');
+    
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
-      localStorage.setItem('token', res.data.token);
-      setUser(res.data.user);
-      setLoading(false);
-      if (res.data.user && res.data.user.role === 'admin') {
-        navigate('/admin-dashboard');
-      } else {
-        navigate('/dashboard');
-      }
+      // Add a small delay to prevent rapid clicking
+      submitTimeoutRef.current = setTimeout(async () => {
+        const res = await axios.post('/api/auth/login', { email: email.trim(), password });
+        
+        // Store token immediately for faster subsequent requests
+        localStorage.setItem('token', res.data.token);
+        
+        // Update user context
+        setUser(res.data.user);
+        
+        // Navigate based on role
+        if (res.data.user && res.data.user.role === 'admin') {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/dashboard');
+        }
+      }, 100);
+      
     } catch (err) {
       setLoading(false);
-      setMessage(err.response?.data?.message || 'Login failed.');
+      setIsSubmitting(false);
+      
+      // Better error handling
+      if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+        setMessage('Login timeout. Please check your connection and try again.');
+      } else if (err.response?.status === 400) {
+        setMessage(err.response.data.message || 'Invalid credentials.');
+      } else if (err.response?.status >= 500) {
+        setMessage('Server error. Please try again later.');
+      } else {
+        setMessage('Login failed. Please try again.');
+      }
     }
-  };
+  }, [email, password, isSubmitting, loading, validateForm, setUser, navigate]);
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (submitTimeoutRef.current) {
+        clearTimeout(submitTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Handle Enter key press
+  const handleKeyPress = useCallback((e) => {
+    if (e.key === 'Enter' && !isSubmitting && !loading) {
+      handleSubmit(e);
+    }
+  }, [handleSubmit, isSubmitting, loading]);
 
   return (
     <div style={{ 
@@ -103,19 +164,22 @@ function Login() {
             placeholder="Email"
             value={email}
             onChange={e => setEmail(e.target.value)}
+            onKeyPress={handleKeyPress}
             required
+            disabled={loading}
             style={{
               padding: '0.8rem 0.8rem 0.8rem 2.5rem',
               borderRadius: '0.5rem',
               border: '1px solid #3A3F47',
               fontSize: '1rem',
-              background: '#1E222A',
+              background: loading ? '#2A2E36' : '#1E222A',
               color: '#E5E7EB',
               width: '100%',
-              transition: 'border-color 0.2s',
+              transition: 'border-color 0.2s, background 0.2s',
+              opacity: loading ? 0.7 : 1,
             }}
-            onFocus={e => e.target.style.borderColor = '#0057D9'}
-            onBlur={e => e.target.style.borderColor = '#3A3F47'}
+            onFocus={e => !loading && (e.target.style.borderColor = '#0057D9')}
+            onBlur={e => !loading && (e.target.style.borderColor = '#3A3F47')}
           />
         </div>
         
@@ -142,29 +206,33 @@ function Login() {
             placeholder="Password"
             value={password}
             onChange={e => setPassword(e.target.value)}
+            onKeyPress={handleKeyPress}
             required
+            disabled={loading}
             style={{
               padding: '0.8rem 0.8rem 0.8rem 2.5rem',
               borderRadius: '0.5rem',
               border: '1px solid #3A3F47',
               fontSize: '1rem',
-              background: '#1E222A',
+              background: loading ? '#2A2E36' : '#1E222A',
               color: '#E5E7EB',
               width: '100%',
-              transition: 'border-color 0.2s',
+              transition: 'border-color 0.2s, background 0.2s',
+              opacity: loading ? 0.7 : 1,
             }}
-            onFocus={e => e.target.style.borderColor = '#0057D9'}
-            onBlur={e => e.target.style.borderColor = '#3A3F47'}
+            onFocus={e => !loading && (e.target.style.borderColor = '#0057D9')}
+            onBlur={e => !loading && (e.target.style.borderColor = '#3A3F47')}
           />
           <button
             type="button"
-            onClick={() => setShowPassword(s => !s)}
+            onClick={() => !loading && setShowPassword(s => !s)}
+            disabled={loading}
             style={{
               position: 'absolute',
               right: '1rem',
               top: '50%',
               transform: 'translateY(-50%)',
-              cursor: 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
               background: 'transparent',
               border: 'none',
               color: '#A0AEC0',
@@ -172,7 +240,8 @@ function Login() {
               padding: '0.25rem',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              opacity: loading ? 0.5 : 1,
             }}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
@@ -182,23 +251,24 @@ function Login() {
         
         <button 
           type="submit" 
-          disabled={loading}
+          disabled={loading || isSubmitting || !validateForm()}
           style={{
-            background: loading ? '#3A3F47' : '#0057D9',
+            background: (loading || isSubmitting || !validateForm()) ? '#3A3F47' : '#0057D9',
             color: '#E5E7EB',
             padding: '0.9rem',
             border: 'none',
             borderRadius: '0.5rem',
             fontWeight: 600,
             fontSize: '1rem',
-            cursor: loading ? 'not-allowed' : 'pointer',
+            cursor: (loading || isSubmitting || !validateForm()) ? 'not-allowed' : 'pointer',
             marginTop: '0.5rem',
             borderBottom: '3px solid #2ECC71',
             transition: 'background 0.2s, transform 0.1s',
+            opacity: (loading || isSubmitting || !validateForm()) ? 0.7 : 1,
           }}
-          onMouseDown={e => !loading && (e.currentTarget.style.transform = 'scale(0.98)')}
-          onMouseUp={e => !loading && (e.currentTarget.style.transform = 'scale(1)')}
-          onMouseLeave={e => !loading && (e.currentTarget.style.transform = 'scale(1)')}
+          onMouseDown={e => !loading && !isSubmitting && validateForm() && (e.currentTarget.style.transform = 'scale(0.98)')}
+          onMouseUp={e => !loading && !isSubmitting && validateForm() && (e.currentTarget.style.transform = 'scale(1)')}
+          onMouseLeave={e => !loading && !isSubmitting && validateForm() && (e.currentTarget.style.transform = 'scale(1)')}
         >
           {loading ? (
             <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>

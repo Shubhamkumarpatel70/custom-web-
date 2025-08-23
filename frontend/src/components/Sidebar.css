@@ -1,0 +1,320 @@
+/* Sidebar Styles */
+.modern-sidebar {
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem 1.5rem 1.2rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow-y: auto;
+  backdrop-filter: blur(10px);
+  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05));
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+}
+
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+}
+
+.sidebar-title h2 {
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-title p {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  margin: 0;
+  text-align: center;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  color: #a0a0a0;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  font-size: 1rem;
+  border: 1px solid transparent;
+}
+
+.nav-item:active {
+  transform: scale(0.98);
+}
+
+.nav-item:focus {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05));
+  transition: width 0.3s ease;
+  z-index: 0;
+}
+
+.nav-item:hover::before,
+.nav-item.active::before {
+  width: 100%;
+}
+
+.nav-item:hover {
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  border-color: rgba(102, 126, 234, 0.2);
+  transform: translateX(5px);
+}
+
+.nav-item.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.1));
+  border-left: 4px solid #667eea;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transform: scale(1.02);
+}
+
+.nav-item.expired {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  border-left: 3px solid #ff6b6b;
+}
+
+.nav-icon {
+  font-size: 1.4rem;
+  width: 32px;
+  text-align: center;
+  z-index: 1;
+  position: relative;
+}
+
+.nav-label {
+  flex: 1;
+  z-index: 1;
+  position: relative;
+}
+
+.nav-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+  position: relative;
+}
+
+.nav-item.active .nav-indicator {
+  opacity: 1;
+}
+
+/* Logout Button */
+.logout-btn {
+  margin-top: 2rem;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.logout-btn:hover, .logout-btn:focus {
+  background: linear-gradient(135deg, #ff5252, #d32f2f);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+}
+
+.logout-icon {
+  font-size: 1.2rem;
+}
+
+/* Mobile Bottom Navigation */
+.mobile-bottom-nav {
+  display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .modern-sidebar {
+    padding: 1.2rem 0.8rem 1.2rem 1rem;
+  }
+  
+  .user-avatar {
+    width: 70px;
+    height: 70px;
+    font-size: 2rem;
+  }
+  
+  .sidebar-title h2 {
+    font-size: 1.2rem;
+  }
+  
+  .nav-item {
+    padding: 0.9rem 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .nav-icon {
+    font-size: 1.3rem;
+    width: 28px;
+  }
+}
+
+@media (max-width: 600px) {
+  .modern-sidebar {
+    display: none;
+  }
+  
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 2000;
+    justify-content: space-around;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #a0a0a0;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 100%;
+    outline: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+  }
+  
+  .bottom-nav-item:active {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    transform: scale(0.95);
+  }
+  
+  .bottom-nav-item.active {
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+  }
+  
+  .bottom-nav-item.logout {
+    color: #ff6b6b;
+  }
+  
+  .bottom-nav-item.logout:active {
+    background: rgba(255, 107, 107, 0.1);
+  }
+  
+  .bottom-nav-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.2rem;
+  }
+  
+  .bottom-nav-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-bottom-nav {
+    height: 65px;
+  }
+  
+  .bottom-nav-item {
+    font-size: 0.9rem;
+    padding: 0.4rem;
+  }
+  
+  .bottom-nav-icon {
+    font-size: 1.4rem;
+  }
+  
+  .bottom-nav-label {
+    font-size: 0.7rem;
+  }
+}

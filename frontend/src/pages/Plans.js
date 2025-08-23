@@ -1,345 +1,246 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { UserContext } from '../UserContext';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from '../axios';
+import './Plans.css';
+
+const planBenefits = [
+  {
+    title: 'Premium Quality',
+    description: 'High-quality websites built with modern technologies and best practices',
+    icon: '⭐'
+  },
+  {
+    title: 'Fast Delivery',
+    description: 'Quick turnaround times without compromising on quality',
+    icon: '🚀'
+  },
+  {
+    title: '24/7 Support',
+    description: 'Round-the-clock support to help you with any questions',
+    icon: '💬'
+  },
+  {
+    title: 'Free Updates',
+    description: 'Regular updates and maintenance to keep your site running smoothly',
+    icon: '🔄'
+  }
+];
 
 function Plans() {
-  const navigate = useNavigate();
-  const { user } = React.useContext(UserContext);
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   useEffect(() => {
-    const fetchPlans = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const res = await axios.get('/api/auth/plans');
-        setPlans(res.data.plans);
-      } catch (err) {
-        setError('Could not fetch plans.');
-      }
-      setLoading(false);
-    };
+    setIsVisible(true);
     fetchPlans();
   }, []);
 
-  const handleBuy = (planName) => {
-    if (!user) {
-      navigate('/login');
-    } else {
-      navigate(`/payment/${planName.toLowerCase()}`);
+  const fetchPlans = async () => {
+    try {
+      const response = await axios.get('/api/auth/plans');
+      // Ensure plans is always an array
+      const plansData = Array.isArray(response.data) ? response.data : 
+                       Array.isArray(response.data.plans) ? response.data.plans : [];
+      setPlans(plansData);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching plans:', err);
+      setError('Failed to load plans. Please try again.');
+      setPlans([]); // Ensure plans is an empty array on error
+      setLoading(false);
     }
   };
 
-  // Show last plan first
-  const sortedPlans = [...plans].reverse();
+  const handlePlanSelect = (plan) => {
+    setSelectedPlan(plan);
+  };
+
+  // Ensure sortedPlans is always an array and handle sorting safely
+  const sortedPlans = Array.isArray(plans) ? plans.sort((a, b) => a.price - b.price) : [];
 
   return (
-    <div className="plans-container">
-      {loading ? (
-        <div className="loading">
-          <div className="spinner"></div>
-          Loading plans...
-        </div>
-      ) : error ? (
-        <div className="error">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-          </svg>
-          {error}
-        </div>
-      ) : (
-        <>
-          <h1 className="plans-title">Choose Your Plan</h1>
-          <p className="plans-subtitle">Select the plan that fits your needs</p>
-          <div className="plans-grid">
-            {sortedPlans.map((plan) => (
-              <div
-                key={plan._id}
-                className={`plan-card${plan.highlight ? ' best-value' : ''}`}
-              >
-                {plan.highlight && (
-                  <div className="best-value-badge">🏆 Best Value</div>
-                )}
-                <h2 className="plan-name">{plan.name}</h2>
-                <div className="plan-price-container">
-                  <div className="plan-price">
-                    ₹{plan.price}
-                  </div>
-                  {plan.oldPrice && (
-                    <div className="plan-old-price">₹{plan.oldPrice}</div>
-                  )}
-                </div>
-                
-                {plan.oldPrice && parseFloat(plan.oldPrice) > parseFloat(plan.price) ? (
-                  <div className="plan-save">
-                    Save ~{Math.round(((parseFloat(plan.oldPrice) - parseFloat(plan.price)) / parseFloat(plan.oldPrice)) * 100)}%
-                  </div>
-                ) : plan.save ? (
-                  <div className="plan-save">Save ₹{plan.save}</div>
-                ) : null}
-
-                <div className="plan-duration">Duration: {plan.duration} days</div>
-                <div className="plan-features">
-                  <h3>What's Included:</h3>
-                  <ul>
-                    {plan.features.map((feature, index) => (
-                      <li key={index}>
-                        <span className="feature-icon">✓</span>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <button
-                  onClick={() => handleBuy(plan.name)}
-                  className={`plan-button${plan.highlight ? ' button-best' : ''}`}
-                >
-                  Get Started →
-                </button>
+    <div className="plans-page">
+      {/* Benefits Section */}
+      <section className="benefits-section section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Why Choose Our Plans?</h2>
+            <p className="section-subtitle">
+              Every plan comes with premium features and exceptional value
+            </p>
+          </div>
+          <div className="benefits-grid">
+            {planBenefits.map((benefit, index) => (
+              <div key={benefit.title} className={`benefit-card ${isVisible ? 'animate-in' : ''}`} style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="benefit-icon">{benefit.icon}</div>
+                <h3 className="benefit-title">{benefit.title}</h3>
+                <p className="benefit-description">{benefit.description}</p>
               </div>
             ))}
           </div>
-        </>
-      )}
-      <style>{`
-        .plans-container {
-          background-color: #181a20;
-          color: #e5e7eb;
-          padding: 2rem 1rem;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          min-height: 100vh;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .plans-title {
-          font-size: 2.5rem;
-          margin-bottom: 0.5rem;
-          text-align: center;
-          background: linear-gradient(to right, #2ecc71, #3498db);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-        }
-        
-        .plans-subtitle {
-          font-size: 1.1rem;
-          color: #a0aec0;
-          margin-bottom: 2rem;
-          text-align: center;
-          max-width: 600px;
-        }
-        
-        .plans-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 2rem;
-          width: 100%;
-          max-width: 1200px;
-          padding: 0 1rem;
-        }
-        
-        .plan-card {
-          background-color: #23272f;
-          border-radius: 15px;
-          padding: 2rem;
-          text-align: center;
-          border: 2px solid transparent;
-          position: relative;
-          transition: all 0.3s ease;
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .plan-card:hover {
-          transform: translateY(-10px);
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
-        }
-        
-        .plan-card.best-value {
-          border-color: #2ecc71;
-          box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
-        }
-        
-        .best-value-badge {
-          position: absolute;
-          top: -12px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: linear-gradient(to right, #2ecc71, #3498db);
-          color: white;
-          padding: 0.3rem 1.2rem;
-          border-radius: 20px;
-          font-size: 0.85rem;
-          font-weight: bold;
-          white-space: nowrap;
-        }
-        
-        .plan-name {
-          font-size: 1.8rem;
-          font-weight: bold;
-          margin-bottom: 1.5rem;
-          color: #ffffff;
-        }
-        
-        .plan-price-container {
-          margin-bottom: 0.5rem;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 0.8rem;
-        }
-        
-        .plan-price {
-          font-size: 2.5rem;
-          font-weight: bold;
-          color: #ffffff;
-        }
-        
-        .plan-old-price {
-          text-decoration: line-through;
-          color: #a0aec0;
-          font-size: 1.2rem;
-        }
-        
-        .plan-save {
-          color: #2ecc71;
-          font-weight: bold;
-          margin-bottom: 1.2rem;
-          font-size: 0.95rem;
-        }
-        
-        .plan-duration {
-          color: #a0aec0;
-          margin-bottom: 1.5rem;
-          font-size: 0.95rem;
-        }
-        
-        .plan-features {
-          margin-bottom: 2rem;
-          text-align: left;
-          flex-grow: 1;
-        }
-        
-        .plan-features h3 {
-          font-weight: bold;
-          margin-bottom: 1rem;
-          font-size: 1.1rem;
-          color: #ffffff;
-        }
-        
-        .plan-features ul {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
-        
-        .plan-features li {
-          display: flex;
-          align-items: flex-start;
-          margin-bottom: 0.8rem;
-          font-size: 0.95rem;
-          line-height: 1.4;
-        }
-        
-        .feature-icon {
-          color: #2ecc71;
-          margin-right: 0.7rem;
-          font-weight: bold;
-          flex-shrink: 0;
-          margin-top: 0.15rem;
-        }
-        
-        .plan-button {
-          border: none;
-          border-radius: 50px;
-          padding: 0.8rem 1.5rem;
-          font-size: 1rem;
-          font-weight: bold;
-          cursor: pointer;
-          width: 100%;
-          transition: all 0.3s ease;
-          background: linear-gradient(to right, #2ecc71, #3498db);
-          color: white;
-          margin-top: auto;
-        }
-        
-        .plan-button.button-best {
-          background: #ffffff;
-          color: #181a20;
-        }
-        
-        .plan-button:hover {
-          opacity: 0.9;
-          transform: translateY(-2px);
-        }
-        
-        .loading, .error {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          color: #e5e7eb;
-          font-size: 1.2rem;
-          gap: 1rem;
-          height: 50vh;
-        }
-        
-        .loading svg, .error svg {
-          width: 3rem;
-          height: 3rem;
-        }
-        
-        .spinner {
-          width: 3rem;
-          height: 3rem;
-          border: 4px solid rgba(255, 255, 255, 0.1);
-          border-radius: 50%;
-          border-top-color: #2ecc71;
-          animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        
-        @media (max-width: 768px) {
-          .plans-title {
-            font-size: 2rem;
-          }
+        </div>
+      </section>
+
+      {/* Plans Section */}
+      <section className="plans-section section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Our Pricing Plans</h2>
+            <p className="section-subtitle">
+              Choose the plan that best fits your business needs
+            </p>
+          </div>
           
-          .plans-subtitle {
-            font-size: 1rem;
-          }
-          
-          .plans-grid {
-            grid-template-columns: 1fr;
-            max-width: 400px;
-          }
-          
-          .plan-card {
-            padding: 1.5rem;
-          }
-        }
-        
-        @media (max-width: 480px) {
-          .plans-title {
-            font-size: 1.8rem;
-          }
-          
-          .plan-name {
-            font-size: 1.6rem;
-          }
-          
-          .plan-price {
-            font-size: 2.2rem;
-          }
-        }
-      `}</style>
+          {loading ? (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p>Loading plans...</p>
+            </div>
+          ) : error ? (
+            <div className="error-container">
+              <div className="error-icon">⚠️</div>
+              <h3>Oops! Something went wrong</h3>
+              <p>{error}</p>
+              <button onClick={() => window.location.reload()} className="btn btn-primary">
+                Try Again
+              </button>
+            </div>
+          ) : sortedPlans.length === 0 ? (
+            <div className="error-container">
+              <div className="error-icon">📋</div>
+              <h3>No Plans Available</h3>
+              <p>Currently no pricing plans are available. Please check back later or contact us for custom pricing.</p>
+              <Link to="/contact" className="btn btn-primary">
+                Contact Us
+              </Link>
+            </div>
+          ) : (
+            <div className="plans-grid">
+              {sortedPlans.map((plan, index) => (
+                <div
+                  key={plan._id || index}
+                  className={`plan-card ${plan.highlight ? 'best-value' : ''} ${isVisible ? 'animate-in' : ''} ${selectedPlan?._id === plan._id ? 'selected' : ''}`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                  onClick={() => handlePlanSelect(plan)}
+                >
+                  {plan.highlight && (
+                    <div className="best-value-badge">
+                      <span className="badge-icon">🏆</span>
+                      <span>Best Value</span>
+                    </div>
+                  )}
+                  
+                  <div className="plan-header">
+                    <h3 className="plan-name">{plan.name}</h3>
+                    <div className="plan-price-container">
+                      <span className="plan-price">₹{plan.price}</span>
+                      {plan.oldPrice && (
+                        <>
+                          <span className="plan-old-price">₹{plan.oldPrice}</span>
+                          <span className="plan-save">Save ₹{plan.oldPrice - plan.price}</span>
+                        </>
+                      )}
+                    </div>
+                    <div className="plan-duration">
+                      <span className="duration-icon">⏰</span>
+                      <span>{plan.duration}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="plan-features">
+                    <h4 className="features-title">
+                      <span className="features-icon">✨</span>
+                      What's Included
+                    </h4>
+                    <ul className="features-list">
+                      {Array.isArray(plan.features) && plan.features.map((feature, idx) => (
+                        <li key={idx} className="feature-item">
+                          <span className="feature-check">✓</span>
+                          <span className="feature-text">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <Link 
+                    to={`/payment/${plan.name.toLowerCase().replace(/\s+/g, '')}`}
+                    className={`plan-button ${plan.highlight ? 'button-best' : ''}`}
+                  >
+                    <span>Get Started</span>
+                    <span className="button-icon">→</span>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="faq-section section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Frequently Asked Questions</h2>
+            <p className="section-subtitle">
+              Get answers to common questions about our plans and services
+            </p>
+          </div>
+          <div className="faq-grid">
+            <div className={`faq-item ${isVisible ? 'animate-in' : ''}`} style={{ animationDelay: '0.1s' }}>
+              <div className="faq-icon">❓</div>
+              <div className="faq-content">
+                <h4 className="faq-question">What's included in each plan?</h4>
+                <p className="faq-answer">Each plan includes responsive design, SEO optimization, content management system, contact forms, and 24/7 support. Higher-tier plans include additional features like e-commerce functionality and advanced analytics.</p>
+              </div>
+            </div>
+            <div className={`faq-item ${isVisible ? 'animate-in' : ''}`} style={{ animationDelay: '0.2s' }}>
+              <div className="faq-icon">⏰</div>
+              <div className="faq-content">
+                <h4 className="faq-question">How long does it take to complete a project?</h4>
+                <p className="faq-answer">Project timelines vary based on complexity. Basic websites typically take 1-2 weeks, while more complex projects may take 3-4 weeks. We'll provide a detailed timeline during the planning phase.</p>
+              </div>
+            </div>
+            <div className={`faq-item ${isVisible ? 'animate-in' : ''}`} style={{ animationDelay: '0.3s' }}>
+              <div className="faq-icon">💬</div>
+              <div className="faq-content">
+                <h4 className="faq-question">Do you provide ongoing support?</h4>
+                <p className="faq-answer">Yes! All plans include 24/7 support and regular updates. We also offer maintenance packages to keep your website secure and up-to-date with the latest features.</p>
+              </div>
+            </div>
+            <div className={`faq-item ${isVisible ? 'animate-in' : ''}`} style={{ animationDelay: '0.4s' }}>
+              <div className="faq-icon">🔄</div>
+              <div className="faq-content">
+                <h4 className="faq-question">Can I upgrade my plan later?</h4>
+                <p className="faq-answer">Absolutely! You can upgrade your plan at any time. We'll work with you to add new features and functionality to your existing website without any downtime.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="plans-cta section">
+        <div className="container">
+          <div className="cta-content">
+            <h2 className="cta-title">Ready to Get Started?</h2>
+            <p className="cta-description">
+              Choose your plan and let's create something amazing together.
+            </p>
+            <div className="cta-actions">
+              <Link to="#plans" className="btn btn-primary">
+                <span>View All Plans</span>
+                <span className="btn-icon">→</span>
+              </Link>
+              <Link to="/contact" className="btn btn-outline">
+                <span>Contact Us</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

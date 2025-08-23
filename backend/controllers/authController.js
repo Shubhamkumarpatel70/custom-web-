@@ -33,27 +33,74 @@ exports.registerUser = async (req, res) => {
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    // Input validation with better error messages
     if (!email || !password) {
-      return res.status(400).json({ message: 'All fields are required.' });
+      return res.status(400).json({ message: 'Email and password are required.' });
     }
-    const user = await User.findOne({ email });
+    
+    // Trim email and validate format
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!trimmedEmail.includes('@') || trimmedEmail.length < 5) {
+      return res.status(400).json({ message: 'Please enter a valid email address.' });
+    }
+    
+    if (password.length < 1) {
+      return res.status(400).json({ message: 'Password is required.' });
+    }
+    
+    // Use lean() for better performance when we don't need the full document
+    const user = await User.findOne({ email: trimmedEmail }).select('+password').lean();
+    
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials.' });
+      return res.status(400).json({ message: 'Invalid email or password.' });
     }
-    const isMatch = await bcrypt.compare(password, user.password);
+    
+    // Compare password with optimized error handling
+    let isMatch;
+    try {
+      isMatch = await bcrypt.compare(password, user.password);
+    } catch (bcryptError) {
+      console.error('Password comparison error:', bcryptError);
+      return res.status(500).json({ message: 'Authentication error. Please try again.' });
+    }
+    
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials.' });
+      return res.status(400).json({ message: 'Invalid email or password.' });
     }
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user._id, role: user.role }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '7d' }
+    );
+    
+    // Set cookie
     res.cookie('token', token, {
       httpOnly: true,
       sameSite: 'None',
       secure: process.env.NODE_ENV === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    
+    // Return user data without password
+    const userResponse = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    };
+    
+    res.json({ 
+      token, 
+      user: userResponse,
+      message: 'Login successful'
+    });
+    
   } catch (err) {
-    res.status(500).json({ message: 'Server error.' });
+    console.error('Login error:', err);
+    res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 };
 
