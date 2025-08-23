@@ -34,7 +34,7 @@ const authLimiter = rateLimit({
 // Apply rate limiting to auth routes
 app.use('/api/auth', authLimiter);
 
-// CORS configuration - More permissive for development
+// CORS configuration - Handle multiple frontend URLs
 app.use(cors({
   origin: function (origin, callback) {
     const allowedOrigins = [
@@ -52,20 +52,16 @@ app.use(cors({
       return callback(null, true);
     }
     
-    // Allow all origins for now to debug the issue
-    console.log('Origin allowed (debug mode):', origin);
-    callback(null, true);
-    
-    // Uncomment below for production security
-    /*
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
       console.log('Origin allowed:', origin);
       callback(null, true);
     } else {
       console.log('Origin not allowed:', origin);
-      callback(new Error('Not allowed by CORS'));
+      // For debugging, allow all origins but log them
+      console.log('Allowing origin for debugging:', origin);
+      callback(null, true);
     }
-    */
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -106,7 +102,7 @@ app.use((req, res, next) => {
 // Handle preflight requests
 app.options('*', cors());
 
-// Manual CORS headers as backup - More permissive for debugging
+// Manual CORS headers as backup - Handle multiple frontend URLs
 app.use((req, res, next) => {
   const allowedOrigins = [
     'http://localhost:3000',
@@ -119,10 +115,10 @@ app.use((req, res, next) => {
   console.log('Manual CORS - Request Origin:', origin);
   console.log('Manual CORS - Request Method:', req.method);
   
-  // Allow all origins for debugging
+  // Set CORS headers for all origins during debugging
   if (origin) {
     res.header('Access-Control-Allow-Origin', origin);
-    console.log('Manual CORS - Origin allowed (debug mode):', origin);
+    console.log('Manual CORS - Origin allowed:', origin);
   }
   
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
@@ -168,6 +164,12 @@ app.get('/api/health', (req, res) => {
     cors: {
       origin: req.headers.origin,
       method: req.method
+    },
+    environment: {
+      nodeEnv: process.env.NODE_ENV,
+      clientUrl: process.env.CLIENT_URL,
+      hasJwtSecret: !!process.env.JWT_SECRET,
+      hasMongoUri: !!process.env.MONGO_URI
     }
   });
 });

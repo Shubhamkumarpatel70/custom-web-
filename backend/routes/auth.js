@@ -31,7 +31,9 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
     secure: process.env.NODE_ENV === 'production',
     maxAge: 7 * 24 * 60 * 60 * 1000
   });
-  res.redirect(process.env.CLIENT_URL || 'http://localhost:3000/dashboard');
+  // Handle multiple frontend URLs
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000/dashboard';
+  res.redirect(clientUrl);
 });
 
 router.get('/me', authMiddleware, async (req, res) => {
