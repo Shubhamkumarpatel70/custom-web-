@@ -15,7 +15,7 @@ import AdminRenewalRequests from './AdminRenewalRequests';
 import AdminNewsletter from './AdminNewsletter';
 import AdminCoupons from './AdminCoupons';
 import AdminTeam from './AdminTeam';
-import AdminPayments from './AdminPayments';
+
 import AdminFeatures from './AdminFeatures';
 import AdminServices from './AdminServices';
 
@@ -56,8 +56,6 @@ const AdminDashboard = () => {
         return <AdminFeatures />;
       case 'services':
         return <AdminServices />;
-      case 'payments':
-        return <AdminPayments />;
       case 'coupons':
         return <AdminCoupons />;
       case 'help':
