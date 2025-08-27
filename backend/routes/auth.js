@@ -16,6 +16,28 @@ const TeamMember = require('../models/Team');
 const Feature = require('../models/Feature');
 const Service = require('../models/Service');
 const PaymentOption = require('../models/PaymentOption');
+const multer = require('multer');
+const path = require('path');
+
+// Configure multer for memory storage (to convert to base64)
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  }
+});
+
+// Helper function to convert buffer to base64
+const bufferToBase64 = (buffer, mimetype) => {
+  return `data:${mimetype};base64,${buffer.toString('base64')}`;
+};
 
 router.use(cookieParser());
 
@@ -801,7 +823,7 @@ router.get('/admin/team', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // Add new team member (admin only)
-router.post('/admin/team', authMiddleware, adminMiddleware, async (req, res) => {
+router.post('/admin/team', authMiddleware, adminMiddleware, upload.single('profileImage'), async (req, res) => {
   try {
     const { name, position, email, phone, bio, order, socialLinks } = req.body;
     
@@ -823,7 +845,7 @@ router.post('/admin/team', authMiddleware, adminMiddleware, async (req, res) => 
     // Use provided order or default to count + 1
     const displayOrder = order || await TeamMember.countDocuments() + 1;
 
-    const teamMember = await TeamMember.create({
+    const teamMemberData = {
       name,
       position,
       email,
@@ -831,7 +853,14 @@ router.post('/admin/team', authMiddleware, adminMiddleware, async (req, res) => 
       bio,
       order: displayOrder,
       socialLinks: parsedSocialLinks || {}
-    });
+    };
+
+    // Add profile image if uploaded (convert to base64)
+    if (req.file) {
+      teamMemberData.profileImage = bufferToBase64(req.file.buffer, req.file.mimetype);
+    }
+
+    const teamMember = await TeamMember.create(teamMemberData);
 
     res.status(201).json({ teamMember, message: 'Team member added successfully.' });
   } catch (err) {
@@ -841,7 +870,7 @@ router.post('/admin/team', authMiddleware, adminMiddleware, async (req, res) => 
 });
 
 // Update team member (admin only)
-router.put('/admin/team/:id', authMiddleware, adminMiddleware, async (req, res) => {
+router.put('/admin/team/:id', authMiddleware, adminMiddleware, upload.single('profileImage'), async (req, res) => {
   try {
     const { name, position, email, phone, bio, order, socialLinks } = req.body;
     
@@ -860,17 +889,24 @@ router.put('/admin/team/:id', authMiddleware, adminMiddleware, async (req, res) 
       }
     }
 
+    const updateData = {
+      name,
+      position,
+      email,
+      phone,
+      bio,
+      order: order || 0,
+      socialLinks: parsedSocialLinks || {}
+    };
+
+    // Add profile image if uploaded (convert to base64)
+    if (req.file) {
+      updateData.profileImage = bufferToBase64(req.file.buffer, req.file.mimetype);
+    }
+
     const teamMember = await TeamMember.findByIdAndUpdate(
       req.params.id,
-      {
-        name,
-        position,
-        email,
-        phone,
-        bio,
-        order: order || 0,
-        socialLinks: parsedSocialLinks || {}
-      },
+      updateData,
       { new: true, runValidators: true }
     );
 

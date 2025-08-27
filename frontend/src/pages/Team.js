@@ -133,6 +133,7 @@ function Team() {
           name: member.name,
           role: member.position,
           bio: member.bio || 'Passionate team member dedicated to delivering excellence.',
+          profileImage: member.profileImage, // Add profile image
           skills: ['Web Development', 'Problem Solving', 'Team Collaboration'],
           experience: '2+ Years',
           projects: '10+ Projects',
@@ -184,7 +185,15 @@ function Team() {
               <div key={member.name} className={`team-card ${isVisible ? 'animate-in' : ''}`} style={{ animationDelay: `${index * 0.1}s` }}>
                 <div className="team-card-header">
                   <div className="team-avatar" style={{ backgroundColor: `${member.color}20`, borderColor: member.color }}>
-                    <span>{member.name.split(' ').map(n => n[0]).join('')}</span>
+                    {member.profileImage ? (
+                      <img
+                        src={member.profileImage}
+                        alt={member.name}
+                        className="team-avatar-image"
+                      />
+                    ) : (
+                      <span>{member.name.split(' ').map(n => n[0]).join('')}</span>
+                    )}
                   </div>
                   <div className="team-role-badge" style={{ backgroundColor: member.color }}>
                     {member.role}
