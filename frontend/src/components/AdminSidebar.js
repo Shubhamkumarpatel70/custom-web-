@@ -14,6 +14,7 @@ const navItems = [
   { id: 'team', label: 'Team', icon: '👨‍💼' },
   { id: 'features', label: 'Features', icon: '✨' },
   { id: 'services', label: 'Services', icon: '🛠️' },
+  { id: 'payment-options', label: 'Payment Options', icon: '💳' },
   { id: 'help', label: 'Help', icon: '🆘' },
   { id: 'coupons', label: 'Coupons', icon: '🏷️' },
 ];

@@ -83,6 +83,10 @@ const AdminApprove = () => {
                 <div><b>User:</b> {sub.user?.name} ({sub.user?.email})</div>
                 <div><b>Plan:</b> {planDisplayNames[sub.plan]}</div>
                 <div><b>Subscription ID:</b> {sub.uniqueId}</div>
+                {sub.transactionId && (
+                  <div><b>Transaction ID:</b> <span style={{ color: '#2ECC71', fontFamily: 'monospace' }}>{sub.transactionId}</span></div>
+                )}
+                <div><b>Payment Method:</b> {sub.paymentMethod ? sub.paymentMethod.toUpperCase() : 'UPI'}</div>
                 <div style={{ fontSize: '0.95rem', color: '#A0AEC0' }}>Requested: {new Date(sub.createdAt).toLocaleString()}</div>
                 {rejectingId === sub._id ? (
                   <div style={{ marginTop: '0.7rem' }}>

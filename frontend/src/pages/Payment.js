@@ -3,8 +3,6 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from '../axios';
 import { UserContext } from '../UserContext';
 
-const UPI_ID = 'customweb@upi';
-
 const Payment = () => {
   const { plan } = useParams();
   const navigate = useNavigate();
@@ -22,15 +20,18 @@ const Payment = () => {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('upi');
+  const [paymentOptions, setPaymentOptions] = useState([]);
+  const [selectedPaymentOption, setSelectedPaymentOption] = useState(null);
 
   useEffect(() => {
-    const fetchPlans = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get('/api/auth/plans');
-        setPlans(res.data.plans);
+        // Fetch plans
+        const plansRes = await axios.get('/api/auth/plans');
+        setPlans(plansRes.data.plans);
         
         // More flexible plan matching
-        const found = res.data.plans.find(p => {
+        const found = plansRes.data.plans.find(p => {
           const planName = p.name.toLowerCase();
           const urlPlan = plan.toLowerCase();
           const cleanPlanName = planName.replace(/\s+/g, '');
@@ -46,14 +47,21 @@ const Payment = () => {
           setAmount(found.price);
           setPlanObj(found);
         } else {
-          console.log('Available plans:', res.data.plans.map(p => p.name));
+          console.log('Available plans:', plansRes.data.plans.map(p => p.name));
           console.log('Looking for plan:', plan);
         }
+
+        // Fetch payment options
+        const paymentRes = await axios.get('/api/auth/payment-options');
+        setPaymentOptions(paymentRes.data.paymentOptions);
+        if (paymentRes.data.paymentOptions.length > 0) {
+          setSelectedPaymentOption(paymentRes.data.paymentOptions[0]);
+        }
       } catch (err) {
-        console.error('Error fetching plans:', err);
+        console.error('Error fetching data:', err);
       }
     };
-    fetchPlans();
+    fetchData();
   }, [plan]);
 
   if (!planObj) {
@@ -149,7 +157,8 @@ const Payment = () => {
 
   // Generate UPI QR code data
   const generateUPIQR = () => {
-    const upiData = `upi://pay?pa=${UPI_ID}&pn=CustomWeb&am=${totalAmount}&cu=INR&tn=${planObj?.name} Plan Payment`;
+    if (!selectedPaymentOption) return '';
+    const upiData = `upi://pay?pa=${selectedPaymentOption.upiId}&pn=CustomWeb&am=${totalAmount}&cu=INR&tn=${planObj?.name} Plan Payment`;
     return upiData;
   };
 
@@ -286,45 +295,73 @@ const Payment = () => {
             <div className="bg-gray-700 rounded-lg p-4 mb-6">
               <h3 className="text-gray-300 text-sm font-medium mb-2">PAYMENT INSTRUCTIONS</h3>
               
-              {paymentMethod === 'qr' ? (
-                <>
-                  <div className="mb-3">
-                    <p className="text-gray-400 text-sm mb-2">Scan QR code to pay ₹{totalAmount}:</p>
-                    <div className="bg-white p-4 rounded-lg flex justify-center">
-                      <div className="text-center">
-                        <div className="w-40 h-40 bg-gray-200 rounded-lg flex items-center justify-center mb-2">
-                          <span className="text-gray-500 text-xs">QR Code for ₹{totalAmount}</span>
-                        </div>
-                        <p className="text-xs text-gray-600">Scan with any UPI app</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mb-3">
-                    <p className="text-gray-400 text-sm mb-1">Or pay manually:</p>
-                    <div className="bg-gray-800 p-3 rounded-lg flex items-center justify-between">
-                      <span className="font-mono text-emerald-400">{UPI_ID}</span>
-                      <button 
-                        onClick={() => copyToClipboard(UPI_ID)}
-                        className="text-blue-400 hover:text-blue-300 text-sm"
-                      >
-                        {copied ? 'Copied!' : 'Copy'}
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="mb-3">
-                  <p className="text-gray-400 text-sm mb-1">Send payment to this UPI ID:</p>
-                  <div className="bg-gray-800 p-3 rounded-lg flex items-center justify-between">
-                    <span className="font-mono text-emerald-400">{UPI_ID}</span>
-                    <button 
-                      onClick={() => copyToClipboard(UPI_ID)}
-                      className="text-blue-400 hover:text-blue-300 text-sm"
-                    >
-                      {copied ? 'Copied!' : 'Copy'}
-                    </button>
-                  </div>
+              {/* Payment Option Selection */}
+              {paymentOptions.length > 0 && (
+                <div className="mb-4">
+                  <label className="block text-gray-400 text-sm mb-2">Select Payment Method:</label>
+                  <select
+                    value={selectedPaymentOption?._id || ''}
+                    onChange={(e) => {
+                      const option = paymentOptions.find(opt => opt._id === e.target.value);
+                      setSelectedPaymentOption(option);
+                    }}
+                    className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    {paymentOptions.map(option => (
+                      <option key={option._id} value={option._id}>
+                        {option.name} ({option.paymentType})
+                      </option>
+                    ))}
+                  </select>
                 </div>
+              )}
+              
+              {selectedPaymentOption && (
+                <>
+                  {paymentMethod === 'qr' ? (
+                    <>
+                      <div className="mb-3">
+                        <p className="text-gray-400 text-sm mb-2">Scan QR code to pay ₹{totalAmount}:</p>
+                        <div className="bg-white p-4 rounded-lg flex justify-center">
+                          <div className="text-center">
+                            <div className="w-40 h-40 bg-gray-200 rounded-lg flex items-center justify-center mb-2">
+                              <span className="text-gray-500 text-xs">QR Code for ₹{totalAmount}</span>
+                            </div>
+                            <p className="text-xs text-gray-600">Scan with any UPI app</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mb-3">
+                        <p className="text-gray-400 text-sm mb-1">Or pay manually:</p>
+                        <div className="bg-gray-800 p-3 rounded-lg flex items-center justify-between">
+                          <span className="font-mono text-emerald-400">{selectedPaymentOption.upiId}</span>
+                          <button 
+                            onClick={() => copyToClipboard(selectedPaymentOption.upiId)}
+                            className="text-blue-400 hover:text-blue-300 text-sm"
+                          >
+                            {copied ? 'Copied!' : 'Copy'}
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="mb-3">
+                      <p className="text-gray-400 text-sm mb-1">Send payment to this {selectedPaymentOption.paymentType}:</p>
+                      <div className="bg-gray-800 p-3 rounded-lg flex items-center justify-between">
+                        <span className="font-mono text-emerald-400">{selectedPaymentOption.upiId}</span>
+                        <button 
+                          onClick={() => copyToClipboard(selectedPaymentOption.upiId)}
+                          className="text-blue-400 hover:text-blue-300 text-sm"
+                        >
+                          {copied ? 'Copied!' : 'Copy'}
+                        </button>
+                      </div>
+                      {selectedPaymentOption.description && (
+                        <p className="text-gray-500 text-xs mt-1">{selectedPaymentOption.description}</p>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
               
               <div>

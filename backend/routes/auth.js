@@ -15,6 +15,7 @@ const Coupon = require('../models/Coupon');
 const TeamMember = require('../models/Team');
 const Feature = require('../models/Feature');
 const Service = require('../models/Service');
+const PaymentOption = require('../models/PaymentOption');
 
 router.use(cookieParser());
 
@@ -1164,6 +1165,114 @@ router.get('/services', async (req, res) => {
   } catch (err) {
     console.error('Error fetching services:', err);
     res.status(500).json({ message: 'Could not fetch services.' });
+  }
+});
+
+// Payment Options Management Routes
+router.get('/admin/payment-options', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const paymentOptions = await PaymentOption.find().sort({ order: 1, createdAt: -1 });
+    res.json({ paymentOptions });
+  } catch (err) {
+    console.error('Error fetching payment options:', err);
+    res.status(500).json({ message: 'Could not fetch payment options.' });
+  }
+});
+
+router.post('/admin/payment-options', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { name, upiId, description, paymentType, order } = req.body;
+    
+    if (!name || !upiId) {
+      return res.status(400).json({ message: 'Name and UPI ID are required.' });
+    }
+
+    // Check if UPI ID already exists
+    const existingOption = await PaymentOption.findOne({ upiId });
+    if (existingOption) {
+      return res.status(400).json({ message: 'UPI ID already exists.' });
+    }
+
+    const paymentOption = new PaymentOption({
+      name,
+      upiId,
+      description,
+      paymentType: paymentType || 'UPI',
+      order: order || 0
+    });
+
+    await paymentOption.save();
+    res.status(201).json({ paymentOption, message: 'Payment option added successfully.' });
+  } catch (err) {
+    console.error('Error adding payment option:', err);
+    res.status(500).json({ message: 'Could not add payment option.' });
+  }
+});
+
+router.put('/admin/payment-options/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { name, upiId, description, paymentType, order, isActive } = req.body;
+    
+    if (!name || !upiId) {
+      return res.status(400).json({ message: 'Name and UPI ID are required.' });
+    }
+
+    // Check if UPI ID already exists (excluding current option)
+    const existingOption = await PaymentOption.findOne({ 
+      upiId, 
+      _id: { $ne: req.params.id } 
+    });
+    if (existingOption) {
+      return res.status(400).json({ message: 'UPI ID already exists.' });
+    }
+
+    const paymentOption = await PaymentOption.findByIdAndUpdate(
+      req.params.id,
+      {
+        name,
+        upiId,
+        description,
+        paymentType: paymentType || 'UPI',
+        order: order || 0,
+        isActive: isActive !== undefined ? isActive : true
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!paymentOption) {
+      return res.status(404).json({ message: 'Payment option not found.' });
+    }
+
+    res.json({ paymentOption, message: 'Payment option updated successfully.' });
+  } catch (err) {
+    console.error('Error updating payment option:', err);
+    res.status(500).json({ message: 'Could not update payment option.' });
+  }
+});
+
+router.delete('/admin/payment-options/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const paymentOption = await PaymentOption.findByIdAndDelete(req.params.id);
+    
+    if (!paymentOption) {
+      return res.status(404).json({ message: 'Payment option not found.' });
+    }
+
+    res.json({ message: 'Payment option deleted successfully.' });
+  } catch (err) {
+    console.error('Error deleting payment option:', err);
+    res.status(500).json({ message: 'Could not delete payment option.' });
+  }
+});
+
+// Public route to get active payment options
+router.get('/payment-options', async (req, res) => {
+  try {
+    const paymentOptions = await PaymentOption.find({ isActive: true }).sort({ order: 1 });
+    res.json({ paymentOptions });
+  } catch (err) {
+    console.error('Error fetching payment options:', err);
+    res.status(500).json({ message: 'Could not fetch payment options.' });
   }
 });
 

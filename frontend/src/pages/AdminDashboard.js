@@ -18,6 +18,7 @@ import AdminTeam from './AdminTeam';
 
 import AdminFeatures from './AdminFeatures';
 import AdminServices from './AdminServices';
+import AdminPaymentOptions from './AdminPaymentOptions';
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -56,6 +57,8 @@ const AdminDashboard = () => {
         return <AdminFeatures />;
       case 'services':
         return <AdminServices />;
+      case 'payment-options':
+        return <AdminPaymentOptions />;
       case 'coupons':
         return <AdminCoupons />;
       case 'help':
