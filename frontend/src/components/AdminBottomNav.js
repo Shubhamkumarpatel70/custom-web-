@@ -1,6 +1,24 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { navItems } from './AdminSidebar';
+
+const navItems = [
+  { id: 'home', label: 'Dashboard', icon: '🏠' },
+  { id: 'approve', label: 'Approve Subs', icon: '✅' },
+  { id: 'user-plans', label: 'User Plans', icon: '👥' },
+  { id: 'users', label: 'Manage Users', icon: '🧑‍💼' },
+  { id: 'stats', label: 'Site Stats', icon: '📊' },
+  { id: 'notifications', label: 'Notifications', icon: '🔔' },
+  { id: 'plans', label: 'Plans', icon: '📦' },
+  { id: 'contacts', label: 'Contacts', icon: '📬' },
+  { id: 'newsletter', label: 'Newsletter Subs', icon: '📧' },
+  { id: 'renewal-requests', label: 'Renewal Requests', icon: '🔄' },
+  { id: 'team', label: 'Team', icon: '👨‍💼' },
+  { id: 'features', label: 'Features', icon: '✨' },
+  { id: 'services', label: 'Services', icon: '🛠️' },
+  { id: 'payments', label: 'Payments', icon: '💳' },
+  { id: 'help', label: 'Help', icon: '🆘' },
+  { id: 'coupons', label: 'Coupons', icon: '🏷️' },
+];
 
 const AdminBottomNav = () => {
   const navigate = useNavigate();

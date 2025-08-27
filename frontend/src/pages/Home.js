@@ -304,6 +304,173 @@ function Home() {
         </div>
       </section>
 
+      {/* Why Choose Us Section */}
+      <section className="why-choose-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Why Choose Custom Web?</h2>
+            <p className="section-subtitle">
+              We combine technical expertise with creative innovation to deliver exceptional results
+            </p>
+          </div>
+          
+          <div className="features-grid">
+            <div className="feature-card">
+              <div className="feature-icon">🚀</div>
+              <h3>Fast & Reliable</h3>
+              <p>Lightning-fast websites with 99.9% uptime guarantee and optimized performance for the best user experience.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">🎨</div>
+              <h3>Creative Design</h3>
+              <p>Unique, modern designs that capture your brand essence and engage your audience effectively.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">🔒</div>
+              <h3>Secure & Safe</h3>
+              <p>Enterprise-grade security with SSL certificates, regular backups, and protection against threats.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">📱</div>
+              <h3>Mobile-First</h3>
+              <p>Responsive designs that work perfectly on all devices, from smartphones to desktop computers.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">⚡</div>
+              <h3>SEO Optimized</h3>
+              <p>Built with search engine optimization in mind to help your website rank higher in search results.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">🛠️</div>
+              <h3>24/7 Support</h3>
+              <p>Round-the-clock technical support and maintenance to keep your website running smoothly.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Technology Stack Section */}
+      <section className="tech-stack-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Our Technology Stack</h2>
+            <p className="section-subtitle">
+              We use cutting-edge technologies to build robust, scalable, and modern web applications
+            </p>
+          </div>
+          
+          <div className="tech-grid">
+            <div className="tech-category">
+              <h3>Frontend</h3>
+              <div className="tech-items">
+                <span className="tech-item">React.js</span>
+                <span className="tech-item">Next.js</span>
+                <span className="tech-item">Vue.js</span>
+                <span className="tech-item">TypeScript</span>
+                <span className="tech-item">Tailwind CSS</span>
+                <span className="tech-item">Material-UI</span>
+              </div>
+            </div>
+            <div className="tech-category">
+              <h3>Backend</h3>
+              <div className="tech-items">
+                <span className="tech-item">Node.js</span>
+                <span className="tech-item">Express.js</span>
+                <span className="tech-item">Python</span>
+                <span className="tech-item">Django</span>
+                <span className="tech-item">PHP</span>
+                <span className="tech-item">Laravel</span>
+              </div>
+            </div>
+            <div className="tech-category">
+              <h3>Database</h3>
+              <div className="tech-items">
+                <span className="tech-item">MongoDB</span>
+                <span className="tech-item">PostgreSQL</span>
+                <span className="tech-item">MySQL</span>
+                <span className="tech-item">Redis</span>
+                <span className="tech-item">Firebase</span>
+                <span className="tech-item">Supabase</span>
+              </div>
+            </div>
+            <div className="tech-category">
+              <h3>Cloud & DevOps</h3>
+              <div className="tech-items">
+                <span className="tech-item">AWS</span>
+                <span className="tech-item">Google Cloud</span>
+                <span className="tech-item">Docker</span>
+                <span className="tech-item">Kubernetes</span>
+                <span className="tech-item">CI/CD</span>
+                <span className="tech-item">Vercel</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Latest Projects Section */}
+      <section className="projects-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Latest Projects</h2>
+            <p className="section-subtitle">
+              Explore some of our recent work and see how we've helped businesses grow
+            </p>
+          </div>
+          
+          <div className="projects-grid">
+            <div className="project-card">
+              <div className="project-image">
+                <div className="project-overlay">
+                  <span className="project-category">E-commerce</span>
+                </div>
+              </div>
+              <div className="project-content">
+                <h3>Modern Fashion Store</h3>
+                <p>A complete e-commerce platform with advanced filtering, payment integration, and inventory management.</p>
+                <div className="project-tech">
+                  <span>React</span>
+                  <span>Node.js</span>
+                  <span>MongoDB</span>
+                </div>
+              </div>
+            </div>
+            <div className="project-card">
+              <div className="project-image">
+                <div className="project-overlay">
+                  <span className="project-category">SaaS Platform</span>
+                </div>
+              </div>
+              <div className="project-content">
+                <h3>Project Management Tool</h3>
+                <p>A comprehensive SaaS application for team collaboration, task management, and project tracking.</p>
+                <div className="project-tech">
+                  <span>Vue.js</span>
+                  <span>Python</span>
+                  <span>PostgreSQL</span>
+                </div>
+              </div>
+            </div>
+            <div className="project-card">
+              <div className="project-image">
+                <div className="project-overlay">
+                  <span className="project-category">Web App</span>
+                </div>
+              </div>
+              <div className="project-content">
+                <h3>Real Estate Platform</h3>
+                <p>A modern real estate website with property listings, advanced search, and virtual tour integration.</p>
+                <div className="project-tech">
+                  <span>Next.js</span>
+                  <span>Express</span>
+                  <span>MongoDB</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="cta-section">
         <div className="container">
@@ -320,7 +487,7 @@ function Home() {
               </Link>
             </div>
           </div>
-                </div>
+        </div>
       </section>
     </div>
   );

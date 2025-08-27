@@ -83,7 +83,12 @@ const Payment = () => {
     setApplyingCoupon(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('/api/auth/coupons/apply', { code: coupon }, token ? { headers: { Authorization: `Bearer ${token}` } } : {});
+      if (!token) {
+        setCouponMsg('Please log in to apply coupons.');
+        setApplyingCoupon(false);
+        return;
+      }
+      const res = await axios.post('/api/auth/coupons/apply', { code: coupon }, { headers: { Authorization: `Bearer ${token}` } });
       setDiscount(res.data.amount);
       setCouponMsg(`Coupon applied! ₹${res.data.amount} off.`);
     } catch (err) {
@@ -98,27 +103,45 @@ const Payment = () => {
       setError('Please enter your transaction ID.');
       return;
     }
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('Please log in to complete your payment.');
+      setTimeout(() => navigate('/login'), 2000);
+      return;
+    }
+    
     setStatus('processing');
     setError('');
     try {
-      const token = localStorage.getItem('token');
       if (coupon && discount > 0) {
-        await axios.post('/api/auth/coupons/apply', { code: coupon, use: true }, token ? { headers: { Authorization: `Bearer ${token}` } } : {});
+        await axios.post('/api/auth/coupons/apply', { code: coupon, use: true }, { headers: { Authorization: `Bearer ${token}` } });
       }
-      const res = await axios.post(
-        '/api/auth/subscribe', 
-        { 
-          plan: planObj.name, 
-          transactionId, 
-          method: paymentMethod 
-        }, 
-        token ? { headers: { Authorization: `Bearer ${token}` } } : {}
-      );
+              const res = await axios.post(
+          '/api/auth/subscribe', 
+          { 
+            plan: planObj.name, 
+            transactionId, 
+            method: paymentMethod 
+          }, 
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
       setSubscription(res.data.subscription);
       setStatus('success');
     } catch (err) {
       setStatus('error');
-      setError(err.response?.data?.message || 'Payment or subscription failed.');
+      console.error('Payment error:', err);
+      if (err.response?.status === 500) {
+        setError('Server error occurred. Please try again later or contact support.');
+      } else if (err.response?.status === 401) {
+        setError('Authentication failed. Please log in again.');
+        // Redirect to login after a delay
+        setTimeout(() => navigate('/login'), 3000);
+      } else if (err.response?.status === 400) {
+        setError(err.response?.data?.message || 'Invalid request. Please check your input.');
+      } else {
+        setError(err.response?.data?.message || 'Payment or subscription failed. Please try again.');
+      }
     }
   };
 

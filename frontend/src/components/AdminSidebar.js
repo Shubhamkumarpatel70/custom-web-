@@ -11,6 +11,10 @@ const navItems = [
   { id: 'contacts', label: 'Contacts', icon: '📬' },
   { id: 'newsletter', label: 'Newsletter Subs', icon: '📧' },
   { id: 'renewal-requests', label: 'Renewal Requests', icon: '🔄' },
+  { id: 'team', label: 'Team', icon: '👨‍💼' },
+  { id: 'features', label: 'Features', icon: '✨' },
+  { id: 'services', label: 'Services', icon: '🛠️' },
+  { id: 'payments', label: 'Payments', icon: '💳' },
   { id: 'help', label: 'Help', icon: '🆘' },
   { id: 'coupons', label: 'Coupons', icon: '🏷️' },
 ];

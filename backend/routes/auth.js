@@ -12,6 +12,9 @@ const Complaint = require('../models/Complaint');
 const passport = require('passport');
 const NewsletterSubscriber = require('../models/NewsletterSubscriber');
 const Coupon = require('../models/Coupon');
+const TeamMember = require('../models/Team');
+const Feature = require('../models/Feature');
+const Service = require('../models/Service');
 
 router.use(cookieParser());
 
@@ -77,11 +80,27 @@ function adminMiddleware(req, res, next) {
 router.post('/subscribe', authMiddleware, async (req, res) => {
   let { plan, transactionId, method } = req.body;
   
-  console.log('Subscription request:', { plan, transactionId, method });
+  console.log('Subscription request:', { 
+    plan, 
+    transactionId, 
+    method, 
+    userId: req.user.id,
+    userEmail: req.user.email 
+  });
   
   // More flexible plan validation
   if (!plan || typeof plan !== 'string') {
     return res.status(400).json({ message: 'Plan is required.' });
+  }
+  
+  // Validate transaction ID if provided
+  if (transactionId && typeof transactionId !== 'string') {
+    return res.status(400).json({ message: 'Transaction ID must be a string.' });
+  }
+  
+  // Validate payment method if provided
+  if (method && !['upi', 'card', 'netbanking'].includes(method)) {
+    return res.status(400).json({ message: 'Invalid payment method.' });
   }
   
   // Find plan by name (case-insensitive)
@@ -95,15 +114,36 @@ router.post('/subscribe', authMiddleware, async (req, res) => {
     return res.status(400).json({ message: 'Plan not found.' });
   }
   
-  // Use the plan name from database
-  const planName = planDoc.name.toLowerCase();
-  const uniqueId = 'SUB-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+  // Verify user exists
+  const user = await User.findById(req.user.id);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found.' });
+  }
+  
+  // Map plan name to subscription enum values
+  let planEnum;
+  const planNameLower = planDoc.name.toLowerCase();
+  if (planNameLower.includes('starter') || planNameLower.includes('basic')) {
+    planEnum = 'starter';
+  } else if (planNameLower.includes('premium')) {
+    planEnum = 'premium';
+  } else if (planNameLower.includes('pro')) {
+    planEnum = 'pro';
+  } else {
+    // Default to starter if no match found
+    planEnum = 'starter';
+  }
+  
+  const uniqueId = 'SUB-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 6).toUpperCase();
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + planDoc.duration * 24 * 60 * 60 * 1000);
+  
+  // Ensure plan duration is valid
+  const durationInDays = planDoc.duration || 30; // Default to 30 days if not specified
+  const expiresAt = new Date(now.getTime() + durationInDays * 24 * 60 * 60 * 1000);
   try {
     const subscription = await Subscription.create({
       user: req.user.id,
-      plan: planName,
+      plan: planEnum,
       uniqueId,
       status: 'pending',
       expiresAt,
@@ -113,6 +153,13 @@ router.post('/subscribe', authMiddleware, async (req, res) => {
     res.status(201).json({ subscription });
   } catch (err) {
     console.error('Subscription creation error:', err);
+    console.error('Error details:', {
+      user: req.user.id,
+      plan: planEnum,
+      planDoc: planDoc.name,
+      error: err.message,
+      validationErrors: err.errors
+    });
     res.status(500).json({ message: 'Could not create subscription.' });
   }
 });
@@ -227,14 +274,63 @@ router.get('/admin/users', authMiddleware, adminMiddleware, async (req, res) => 
   }
 });
 
+// Admin: Update user role
+router.put('/admin/users/:id/role', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { role } = req.body;
+    
+    // Validate role
+    if (!role || !['user', 'admin'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role. Must be "user" or "admin".' });
+    }
+
+    // Prevent admin from changing their own role
+    if (req.params.id === req.user.id) {
+      return res.status(400).json({ message: 'You cannot change your own role.' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { role },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.json({ user, message: 'User role updated successfully.' });
+  } catch (err) {
+    console.error('Error updating user role:', err);
+    res.status(500).json({ message: 'Could not update user role.' });
+  }
+});
+
 // Admin: Get site statistics
 router.get('/admin/stats', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const userCount = await User.countDocuments();
     const subCount = await Subscription.countDocuments();
     const activeSubs = await Subscription.countDocuments({ status: 'active' });
-    res.json({ userCount, subCount, activeSubs });
+    
+    // Calculate total revenue from active subscriptions
+    const activeSubscriptions = await Subscription.find({ status: 'active' }).populate('plan');
+    let totalRevenue = 0;
+    
+    activeSubscriptions.forEach(sub => {
+      if (sub.plan && sub.plan.price) {
+        totalRevenue += sub.plan.price;
+      }
+    });
+    
+    res.json({ 
+      userCount, 
+      subCount, 
+      activeSubs, 
+      totalRevenue: Math.round(totalRevenue * 100) / 100 // Round to 2 decimal places
+    });
   } catch (err) {
+    console.error('Error fetching stats:', err);
     res.status(500).json({ message: 'Could not fetch stats.' });
   }
 });
@@ -301,7 +397,16 @@ router.get('/admin/all-subscriptions', authMiddleware, adminMiddleware, async (r
 // Add this route for user notifications
 router.get('/user-notifications', authMiddleware, async (req, res) => {
   try {
-    const notifications = await Notification.find({ $or: [ { user: req.user.id }, { user: null } ] }).sort({ createdAt: -1 });
+    const notifications = await Notification.find({ 
+      $and: [
+        { $or: [ { user: req.user.id }, { user: null } ] },
+        { $or: [
+          { expiresAt: { $gt: new Date() } }, // Not expired
+          { expiresAt: { $exists: false } }   // No expiration set (backward compatibility)
+        ]}
+      ]
+    }).sort({ createdAt: -1 });
+    
     res.json({ notifications: notifications.map(n => ({
       _id: n._id,
       title: n.title || 'Notification',
@@ -678,6 +783,387 @@ router.post('/coupons/apply', async (req, res, next) => {
     res.json({ amount: coupon.amount, coupon });
   } catch (err) {
     res.status(500).json({ message: 'Could not apply coupon.' });
+  }
+});
+
+// Team Management Routes
+
+// Get all team members (admin only)
+router.get('/admin/team', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const teamMembers = await TeamMember.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+    res.json({ teamMembers });
+  } catch (err) {
+    console.error('Error fetching team members:', err);
+    res.status(500).json({ message: 'Could not fetch team members.' });
+  }
+});
+
+// Add new team member (admin only)
+router.post('/admin/team', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { name, position, email, phone, bio, order, socialLinks } = req.body;
+    
+    // Validate required fields
+    if (!name || !position) {
+      return res.status(400).json({ message: 'Name and position are required.' });
+    }
+
+    // Parse social links if it's a string
+    let parsedSocialLinks = socialLinks;
+    if (typeof socialLinks === 'string') {
+      try {
+        parsedSocialLinks = JSON.parse(socialLinks);
+      } catch (e) {
+        parsedSocialLinks = {};
+      }
+    }
+
+    // Use provided order or default to count + 1
+    const displayOrder = order || await TeamMember.countDocuments() + 1;
+
+    const teamMember = await TeamMember.create({
+      name,
+      position,
+      email,
+      phone,
+      bio,
+      order: displayOrder,
+      socialLinks: parsedSocialLinks || {}
+    });
+
+    res.status(201).json({ teamMember, message: 'Team member added successfully.' });
+  } catch (err) {
+    console.error('Error creating team member:', err);
+    res.status(500).json({ message: 'Could not create team member.' });
+  }
+});
+
+// Update team member (admin only)
+router.put('/admin/team/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { name, position, email, phone, bio, order, socialLinks } = req.body;
+    
+    // Validate required fields
+    if (!name || !position) {
+      return res.status(400).json({ message: 'Name and position are required.' });
+    }
+
+    // Parse social links if it's a string
+    let parsedSocialLinks = socialLinks;
+    if (typeof socialLinks === 'string') {
+      try {
+        parsedSocialLinks = JSON.parse(socialLinks);
+      } catch (e) {
+        parsedSocialLinks = {};
+      }
+    }
+
+    const teamMember = await TeamMember.findByIdAndUpdate(
+      req.params.id,
+      {
+        name,
+        position,
+        email,
+        phone,
+        bio,
+        order: order || 0,
+        socialLinks: parsedSocialLinks || {}
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!teamMember) {
+      return res.status(404).json({ message: 'Team member not found.' });
+    }
+
+    res.json({ teamMember, message: 'Team member updated successfully.' });
+  } catch (err) {
+    console.error('Error updating team member:', err);
+    res.status(500).json({ message: 'Could not update team member.' });
+  }
+});
+
+// Delete team member (admin only)
+router.delete('/admin/team/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const teamMember = await TeamMember.findByIdAndDelete(req.params.id);
+    
+    if (!teamMember) {
+      return res.status(404).json({ message: 'Team member not found.' });
+    }
+
+    res.json({ message: 'Team member deleted successfully.' });
+  } catch (err) {
+    console.error('Error deleting team member:', err);
+    res.status(500).json({ message: 'Could not delete team member.' });
+  }
+});
+
+// Get team members for public display (no auth required)
+router.get('/team', async (req, res) => {
+  try {
+    const teamMembers = await TeamMember.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+    res.json({ teamMembers });
+  } catch (err) {
+    console.error('Error fetching team members:', err);
+    res.status(500).json({ message: 'Could not fetch team members.' });
+  }
+});
+
+// Feature Management Routes
+
+// Get all features (admin only)
+router.get('/admin/features', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const features = await Feature.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+    res.json({ features });
+  } catch (err) {
+    console.error('Error fetching features:', err);
+    res.status(500).json({ message: 'Could not fetch features.' });
+  }
+});
+
+// Add new feature (admin only)
+router.post('/admin/features', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { title, description, icon, category, order, color, benefits } = req.body;
+    
+    // Validate required fields
+    if (!title || !description || !icon) {
+      return res.status(400).json({ message: 'Title, description, and icon are required.' });
+    }
+
+    // Parse benefits if it's a string
+    let parsedBenefits = benefits;
+    if (typeof benefits === 'string') {
+      try {
+        parsedBenefits = JSON.parse(benefits);
+      } catch (e) {
+        parsedBenefits = [];
+      }
+    }
+
+    // Use provided order or default to count + 1
+    const displayOrder = order || await Feature.countDocuments() + 1;
+
+    const feature = await Feature.create({
+      title,
+      description,
+      icon,
+      category: category || 'other',
+      order: displayOrder,
+      color: color || '#667eea',
+      benefits: parsedBenefits || []
+    });
+
+    res.status(201).json({ feature, message: 'Feature added successfully.' });
+  } catch (err) {
+    console.error('Error creating feature:', err);
+    res.status(500).json({ message: 'Could not create feature.' });
+  }
+});
+
+// Update feature (admin only)
+router.put('/admin/features/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { title, description, icon, category, order, color, benefits } = req.body;
+    
+    // Validate required fields
+    if (!title || !description || !icon) {
+      return res.status(400).json({ message: 'Title, description, and icon are required.' });
+    }
+
+    // Parse benefits if it's a string
+    let parsedBenefits = benefits;
+    if (typeof benefits === 'string') {
+      try {
+        parsedBenefits = JSON.parse(benefits);
+      } catch (e) {
+        parsedBenefits = [];
+      }
+    }
+
+    const feature = await Feature.findByIdAndUpdate(
+      req.params.id,
+      {
+        title,
+        description,
+        icon,
+        category: category || 'other',
+        order: order || 0,
+        color: color || '#667eea',
+        benefits: parsedBenefits || []
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!feature) {
+      return res.status(404).json({ message: 'Feature not found.' });
+    }
+
+    res.json({ feature, message: 'Feature updated successfully.' });
+  } catch (err) {
+    console.error('Error updating feature:', err);
+    res.status(500).json({ message: 'Could not update feature.' });
+  }
+});
+
+// Delete feature (admin only)
+router.delete('/admin/features/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const feature = await Feature.findByIdAndDelete(req.params.id);
+    
+    if (!feature) {
+      return res.status(404).json({ message: 'Feature not found.' });
+    }
+
+    res.json({ message: 'Feature deleted successfully.' });
+  } catch (err) {
+    console.error('Error deleting feature:', err);
+    res.status(500).json({ message: 'Could not delete feature.' });
+  }
+});
+
+// Get features for public display (no auth required)
+router.get('/features', async (req, res) => {
+  try {
+    const features = await Feature.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+    res.json({ features });
+  } catch (err) {
+    console.error('Error fetching features:', err);
+    res.status(500).json({ message: 'Could not fetch features.' });
+  }
+});
+
+// Service Management Routes
+
+// Get all services (admin only)
+router.get('/admin/services', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const services = await Service.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+    res.json({ services });
+  } catch (err) {
+    console.error('Error fetching services:', err);
+    res.status(500).json({ message: 'Could not fetch services.' });
+  }
+});
+
+// Add new service (admin only)
+router.post('/admin/services', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { name, description, shortDescription, icon, category, price, duration, features, order, color } = req.body;
+    
+    // Validate required fields
+    if (!name || !description || !icon) {
+      return res.status(400).json({ message: 'Name, description, and icon are required.' });
+    }
+
+    // Parse features if it's a string
+    let parsedFeatures = features;
+    if (typeof features === 'string') {
+      try {
+        parsedFeatures = JSON.parse(features);
+      } catch (e) {
+        parsedFeatures = [];
+      }
+    }
+
+    // Use provided order or default to count + 1
+    const displayOrder = order || await Service.countDocuments() + 1;
+
+    const service = await Service.create({
+      name,
+      description,
+      shortDescription,
+      icon,
+      category: category || 'other',
+      price,
+      duration,
+      features: parsedFeatures || [],
+      order: displayOrder,
+      color: color || '#667eea'
+    });
+
+    res.status(201).json({ service, message: 'Service added successfully.' });
+  } catch (err) {
+    console.error('Error creating service:', err);
+    res.status(500).json({ message: 'Could not create service.' });
+  }
+});
+
+// Update service (admin only)
+router.put('/admin/services/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { name, description, shortDescription, icon, category, price, duration, features, order, color } = req.body;
+    
+    // Validate required fields
+    if (!name || !description || !icon) {
+      return res.status(400).json({ message: 'Name, description, and icon are required.' });
+    }
+
+    // Parse features if it's a string
+    let parsedFeatures = features;
+    if (typeof features === 'string') {
+      try {
+        parsedFeatures = JSON.parse(features);
+      } catch (e) {
+        parsedFeatures = [];
+      }
+    }
+
+    const service = await Service.findByIdAndUpdate(
+      req.params.id,
+      {
+        name,
+        description,
+        shortDescription,
+        icon,
+        category: category || 'other',
+        price,
+        duration,
+        features: parsedFeatures || [],
+        order: order || 0,
+        color: color || '#667eea'
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!service) {
+      return res.status(404).json({ message: 'Service not found.' });
+    }
+
+    res.json({ service, message: 'Service updated successfully.' });
+  } catch (err) {
+    console.error('Error updating service:', err);
+    res.status(500).json({ message: 'Could not update service.' });
+  }
+});
+
+// Delete service (admin only)
+router.delete('/admin/services/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const service = await Service.findByIdAndDelete(req.params.id);
+    
+    if (!service) {
+      return res.status(404).json({ message: 'Service not found.' });
+    }
+
+    res.json({ message: 'Service deleted successfully.' });
+  } catch (err) {
+    console.error('Error deleting service:', err);
+    res.status(500).json({ message: 'Could not delete service.' });
+  }
+});
+
+// Get services for public display (no auth required)
+router.get('/services', async (req, res) => {
+  try {
+    const services = await Service.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+    res.json({ services });
+  } catch (err) {
+    console.error('Error fetching services:', err);
+    res.status(500).json({ message: 'Could not fetch services.' });
   }
 });
 

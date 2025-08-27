@@ -15,6 +15,9 @@ const session = require('express-session');
 
 require('./config/passport'); // Google strategy configuration
 
+// Import Notification model for cleanup task
+const Notification = require('./models/Notification');
+
 const app = express();
 
 // Security and performance middleware
@@ -277,6 +280,25 @@ io.on('connection', (socket) => {
   });
 });
 
+// Scheduled task to clean expired notifications (runs every hour)
+const cleanupExpiredNotifications = async () => {
+  try {
+    const deletedCount = await Notification.cleanExpired();
+    if (deletedCount > 0) {
+      console.log(`Cleaned up ${deletedCount} expired notifications`);
+    }
+  } catch (error) {
+    console.error('Error in notification cleanup task:', error);
+  }
+};
+
+// Run cleanup immediately on startup
+cleanupExpiredNotifications();
+
+// Schedule cleanup to run every hour
+setInterval(cleanupExpiredNotifications, 60 * 60 * 1000); // 1 hour
+
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log('Notification cleanup task scheduled (runs every hour)');
 }); 

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from '../axios';
 import './Services.css';
 
-const services = [
+const defaultServices = [
   {
     title: 'Website Development',
     desc: 'Custom websites built with responsive design and best practices.',
@@ -113,10 +114,39 @@ const stats = [
 
 function Services() {
   const [isVisible, setIsVisible] = useState(false);
+  const [services, setServices] = useState(defaultServices);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     setIsVisible(true);
+    fetchServices();
   }, []);
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/auth/services');
+      if (response.data.services && response.data.services.length > 0) {
+        // Transform API data to match the expected format
+        const transformedServices = response.data.services.map(service => ({
+          title: service.name,
+          desc: service.description,
+          icon: service.icon,
+          color: service.color || '#667eea',
+          price: service.price || 'Contact for pricing',
+          features: service.features || ['Professional quality', 'Custom implementation', 'Ongoing support']
+        }));
+        setServices(transformedServices);
+      }
+    } catch (err) {
+      console.error('Error fetching services:', err);
+      setError('Failed to load services');
+      // Keep using default services data
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="services-page">
@@ -129,6 +159,19 @@ function Services() {
               Professional web development services to help your business grow online
             </p>
           </div>
+          {loading && (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p>Loading services...</p>
+            </div>
+          )}
+          
+          {error && (
+            <div className="error-message">
+              <p>{error}</p>
+            </div>
+          )}
+          
           <div className="services-grid">
             {services.map((service, index) => (
               <div 

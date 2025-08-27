@@ -98,8 +98,8 @@ function Plans() {
             <div className="loading-container">
               <div className="loading-spinner"></div>
               <p>Loading plans...</p>
-            </div>
-          ) : error ? (
+        </div>
+      ) : error ? (
             <div className="error-container">
               <div className="error-icon">⚠️</div>
               <h3>Oops! Something went wrong</h3>
@@ -116,21 +116,21 @@ function Plans() {
               <Link to="/contact" className="btn btn-primary">
                 Contact Us
               </Link>
-            </div>
-          ) : (
-            <div className="plans-grid">
+        </div>
+      ) : (
+          <div className="plans-grid">
               {sortedPlans.map((plan, index) => (
                 <div
                   key={plan._id || index}
                   className={`plan-card ${plan.highlight ? 'best-value' : ''} ${isVisible ? 'animate-in' : ''} ${selectedPlan?._id === plan._id ? 'selected' : ''}`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                   onClick={() => handlePlanSelect(plan)}
-                >
-                  {plan.highlight && (
+              >
+                {plan.highlight && (
                     <div className="best-value-badge">
                       <span className="badge-icon">🏆</span>
                       <span>Best Value</span>
-                    </div>
+                  </div>
                   )}
                   
                   <div className="plan-header">
@@ -147,10 +147,10 @@ function Plans() {
                     <div className="plan-duration">
                       <span className="duration-icon">⏰</span>
                       <span>{plan.duration}</span>
-                    </div>
+                </div>
                   </div>
-                  
-                  <div className="plan-features">
+
+                <div className="plan-features">
                     <h4 className="features-title">
                       <span className="features-icon">✨</span>
                       What's Included
@@ -160,10 +160,10 @@ function Plans() {
                         <li key={idx} className="feature-item">
                           <span className="feature-check">✓</span>
                           <span className="feature-text">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
                   
                   <Link 
                     to={`/payment/${plan.name.toLowerCase().replace(/\s+/g, '')}`}
@@ -172,9 +172,9 @@ function Plans() {
                     <span>Get Started</span>
                     <span className="button-icon">→</span>
                   </Link>
-                </div>
-              ))}
-            </div>
+              </div>
+            ))}
+          </div>
           )}
         </div>
       </section>

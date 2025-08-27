@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from '../axios';
 import './Team.css';
 
-const team = [
+const defaultTeam = [
   {
     name: 'Shubham Patel',
     role: 'Founder & Lead Developer',
@@ -113,10 +114,46 @@ const perks = [
 
 function Team() {
   const [isVisible, setIsVisible] = useState(false);
+  const [teamMembers, setTeamMembers] = useState(defaultTeam);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     setIsVisible(true);
+    fetchTeamMembers();
   }, []);
+
+  const fetchTeamMembers = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/auth/team');
+      if (response.data.teamMembers && response.data.teamMembers.length > 0) {
+        // Transform API data to match the expected format
+        const transformedTeam = response.data.teamMembers.map(member => ({
+          name: member.name,
+          role: member.position,
+          bio: member.bio || 'Passionate team member dedicated to delivering excellence.',
+          skills: ['Web Development', 'Problem Solving', 'Team Collaboration'],
+          experience: '2+ Years',
+          projects: '10+ Projects',
+          color: '#667eea',
+          social: {
+            linkedin: member.socialLinks?.linkedin || '#',
+            github: member.socialLinks?.github || '#',
+            twitter: member.socialLinks?.twitter || '#',
+            instagram: member.socialLinks?.instagram || '#'
+          }
+        }));
+        setTeamMembers(transformedTeam);
+      }
+    } catch (err) {
+      console.error('Error fetching team members:', err);
+      setError('Failed to load team members');
+      // Keep using default team data
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="team-page">
@@ -129,8 +166,21 @@ function Team() {
               Meet the professionals who make your projects successful
             </p>
           </div>
+          {loading && (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p>Loading team members...</p>
+            </div>
+          )}
+          
+          {error && (
+            <div className="error-message">
+              <p>{error}</p>
+            </div>
+          )}
+          
           <div className="team-grid">
-            {team.map((member, index) => (
+            {teamMembers.map((member, index) => (
               <div key={member.name} className={`team-card ${isVisible ? 'animate-in' : ''}`} style={{ animationDelay: `${index * 0.1}s` }}>
                 <div className="team-card-header">
                   <div className="team-avatar" style={{ backgroundColor: `${member.color}20`, borderColor: member.color }}>
@@ -219,18 +269,18 @@ function Team() {
               <p className="section-subtitle">
                 We're always looking for talented individuals to join our growing team
               </p>
-            </div>
+              </div>
             <div className="perks-grid">
               {perks.map((perk, index) => (
                 <div key={perk.title} className={`perk-item ${isVisible ? 'animate-in' : ''}`} style={{ animationDelay: `${index * 0.1}s` }}>
                   <div className="perk-icon">
                     <span>{perk.icon}</span>
-                  </div>
+              </div>
                   <div className="perk-content">
                     <h4 className="perk-title">{perk.title}</h4>
                     <p className="perk-desc">{perk.desc}</p>
-                  </div>
-                </div>
+              </div>
+              </div>
               ))}
             </div>
             <div className="join-team-actions">
