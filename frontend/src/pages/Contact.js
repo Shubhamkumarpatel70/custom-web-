@@ -4,28 +4,28 @@ import './Contact.css';
 const contactMethods = [
   {
     title: 'Email Us',
-    content: 'info@customweb.com',
-    link: 'mailto:info@customweb.com',
+    content: 'official.customweb@gmail.com',
+    link: 'mailto:official.customweb@gmail.com',
     icon: '📧',
     color: '#667eea'
   },
   {
     title: 'Call Us',
-    content: '+91 98765 43210',
-    link: 'tel:+919876543210',
+    content: '+91 9027880288',
+    link: 'tel:+919027880288',
     icon: '📞',
     color: '#764ba2'
   },
   {
     title: 'WhatsApp',
-    content: '+91 98765 43210',
-    link: 'https://wa.me/919876543210',
+    content: '+91 9027880288',
+    link: 'https://wa.me/919027880288',
     icon: '💬',
     color: '#f093fb'
   },
   {
     title: 'Visit Us',
-    content: 'Mumbai, Maharashtra, India',
+    content: 'Bihar, Patna, India',
     icon: '📍',
     color: '#4facfe'
   }
@@ -226,7 +226,7 @@ function Contact() {
                     </div>
                   )}
                   
-                  <button type="submit" className="submit-btn" disabled={isSubmitting}>
+                  <button type="submit" className="btn btn-primary submit-btn" disabled={isSubmitting}>
                     {isSubmitting ? (
                       <>
                         <div className="loading-spinner"></div>
@@ -280,7 +280,7 @@ function Contact() {
               Let's discuss your requirements and create something amazing together.
             </p>
             <div className="cta-actions">
-              <a href="mailto:info@customweb.com" className="btn btn-primary">
+              <a href="mailto:official.customweb@gmail.com" className="btn btn-primary">
                 Email Us Now
                 <span className="btn-icon">→</span>
               </a>

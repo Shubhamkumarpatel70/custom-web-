@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from '../axios';
 import './Team.css';
 
 const defaultTeam = [
@@ -59,6 +58,46 @@ const defaultTeam = [
       github: '#',
       twitter: '#'
     }
+  },
+  {
+    name: 'Priya Sharma',
+    role: 'Frontend Developer',
+    bio: 'Creates fast, accessible, and responsive interfaces with React.',
+    skills: ['React', 'TypeScript', 'Tailwind CSS', 'Accessibility'],
+    experience: '2+ Years',
+    projects: '10+ Projects',
+    color: '#06d6a0',
+    social: { linkedin: '#', github: '#', twitter: '#' }
+  },
+  {
+    name: 'Amit Verma',
+    role: 'Backend Developer',
+    bio: 'Builds secure APIs and robust backend services.',
+    skills: ['Node.js', 'Express', 'MongoDB', 'REST'],
+    experience: '3+ Years',
+    projects: '12+ Projects',
+    color: '#118ab2',
+    social: { linkedin: '#', github: '#', twitter: '#' }
+  },
+  {
+    name: 'Neha Gupta',
+    role: 'UI/UX Designer',
+    bio: 'Designs delightful user experiences and design systems.',
+    skills: ['Figma', 'Wireframing', 'Prototyping', 'Design Systems'],
+    experience: '2+ Years',
+    projects: '20+ Designs',
+    color: '#ef476f',
+    social: { linkedin: '#', github: '#', twitter: '#' }
+  },
+  {
+    name: 'Rahul Singh',
+    role: 'DevOps Engineer',
+    bio: 'Automates deployments and ensures high availability.',
+    skills: ['CI/CD', 'Docker', 'NGINX', 'Linux'],
+    experience: '3+ Years',
+    projects: '15+ Projects',
+    color: '#8338ec',
+    social: { linkedin: '#', github: '#', twitter: '#' }
   }
 ];
 
@@ -114,47 +153,11 @@ const perks = [
 
 function Team() {
   const [isVisible, setIsVisible] = useState(false);
-  const [teamMembers, setTeamMembers] = useState(defaultTeam);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [teamMembers] = useState(defaultTeam);
 
   useEffect(() => {
     setIsVisible(true);
-    fetchTeamMembers();
   }, []);
-
-  const fetchTeamMembers = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get('/api/auth/team');
-      if (response.data.teamMembers && response.data.teamMembers.length > 0) {
-        // Transform API data to match the expected format
-        const transformedTeam = response.data.teamMembers.map(member => ({
-          name: member.name,
-          role: member.position,
-          bio: member.bio || 'Passionate team member dedicated to delivering excellence.',
-          profileImage: member.profileImage, // Add profile image
-          skills: ['Web Development', 'Problem Solving', 'Team Collaboration'],
-          experience: '2+ Years',
-          projects: '10+ Projects',
-          color: '#667eea',
-          social: {
-            linkedin: member.socialLinks?.linkedin || '#',
-            github: member.socialLinks?.github || '#',
-            twitter: member.socialLinks?.twitter || '#',
-            instagram: member.socialLinks?.instagram || '#'
-          }
-        }));
-        setTeamMembers(transformedTeam);
-      }
-    } catch (err) {
-      console.error('Error fetching team members:', err);
-      setError('Failed to load team members');
-      // Keep using default team data
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="team-page">
@@ -167,19 +170,6 @@ function Team() {
               Meet the professionals who make your projects successful
             </p>
           </div>
-          {loading && (
-            <div className="loading-container">
-              <div className="loading-spinner"></div>
-              <p>Loading team members...</p>
-            </div>
-          )}
-          
-          {error && (
-            <div className="error-message">
-              <p>{error}</p>
-            </div>
-          )}
-          
           <div className="team-grid">
             {teamMembers.map((member, index) => (
               <div key={member.name} className={`team-card ${isVisible ? 'animate-in' : ''}`} style={{ animationDelay: `${index * 0.1}s` }}>
@@ -203,40 +193,6 @@ function Team() {
                   <h3 className="team-name" style={{ color: member.color }}>
                     {member.name}
                   </h3>
-                  <p className="team-bio">{member.bio}</p>
-                  <div className="team-skills">
-                    <h4>Expertise:</h4>
-                    <div className="skills-grid">
-                      {member.skills.map((skill, idx) => (
-                        <span key={idx} className="skill-tag" style={{ backgroundColor: `${member.color}20`, color: member.color }}>
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="team-card-footer">
-                  <div className="team-stats">
-                    <div className="team-stat">
-                      <span className="stat-value">{member.experience}</span>
-                      <span className="stat-label">Experience</span>
-                    </div>
-                    <div className="team-stat">
-                      <span className="stat-value">{member.projects}</span>
-                      <span className="stat-label">Completed</span>
-                    </div>
-                  </div>
-                  <div className="team-social">
-                    <a href={member.social.linkedin} className="social-link" target="_blank" rel="noopener noreferrer">
-                      <span>LinkedIn</span>
-                    </a>
-                    <a href={member.social.github} className="social-link" target="_blank" rel="noopener noreferrer">
-                      <span>GitHub</span>
-                    </a>
-                    <a href={member.social.twitter} className="social-link" target="_blank" rel="noopener noreferrer">
-                      <span>Twitter</span>
-                    </a>
-                  </div>
                 </div>
               </div>
             ))}

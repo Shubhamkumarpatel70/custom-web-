@@ -82,6 +82,43 @@ const DashboardHome = () => {
 
   return (
     <div className="dashboard-home">
+      {/* Profile Overview */}
+      <section className="profile-widget">
+        <div className="profile-card">
+          <div className="profile-main">
+            <div className="profile-avatar">
+              <span>{(user?.name || 'U').split(' ').map(n => n[0]).join('')}</span>
+            </div>
+            <div className="profile-info">
+              <h2 className="profile-name">{user?.name || 'User'}</h2>
+              <div className="profile-meta">
+                <span className="meta-item">{user?.email || 'N/A'}</span>
+                <span className="meta-sep">•</span>
+                <span className="meta-item">{user?.role || 'User'}</span>
+              </div>
+            </div>
+          </div>
+          <div className="profile-actions">
+            <Link to="/dashboard/subscription" className="profile-action">
+              <span className="action-icon">💳</span>
+              <span>Manage Plan</span>
+            </Link>
+            <Link to="/dashboard/purchases" className="profile-action">
+              <span className="action-icon">🛒</span>
+              <span>Purchases</span>
+            </Link>
+            <Link to="/dashboard/notifications" className="profile-action">
+              <span className="action-icon">🔔</span>
+              <span>Notifications</span>
+            </Link>
+            <Link to="/dashboard/support" className="profile-action">
+              <span className="action-icon">💬</span>
+              <span>Support</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Welcome Header */}
       <div className="welcome-header">
         <h1 className="welcome-title">

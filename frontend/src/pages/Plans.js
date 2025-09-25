@@ -167,7 +167,7 @@ function Plans() {
                   
                   <Link 
                     to={`/payment/${plan.name.toLowerCase().replace(/\s+/g, '')}`}
-                    className={`plan-button ${plan.highlight ? 'button-best' : ''}`}
+                    className={`btn btn-primary ${plan.highlight ? 'button-best' : ''}`}
                   >
                     <span>Get Started</span>
                     <span className="button-icon">→</span>

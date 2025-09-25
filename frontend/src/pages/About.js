@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import './About.css';
 
 const highlights = [
-  { year: '2022', text: 'Founded Custom Web', icon: '🚀', color: '#667eea', description: 'Started our journey with a vision to create amazing digital experiences' },
+  { year: '2022', text: 'Founded Bihar IT Solution', icon: '🚀', color: '#667eea', description: 'Started our journey with a vision to create amazing digital experiences' },
   { year: '2023', text: '10+ Satisfied Clients', icon: '🤝', color: '#764ba2', description: 'Built trust and delivered exceptional results for our growing client base' },
   { year: '2024', text: '12+ Projects Completed', icon: '🏆', color: '#f093fb', description: 'Successfully launched diverse projects across different industries' },
 ];
@@ -112,7 +112,7 @@ function About() {
             <div className="content-text">
               <h2 className="section-title">Who We Are</h2>
               <p className="section-description">
-                At <span className="brand-highlight">Custom Web</span>, we believe in delivering excellence in every project. Our team is passionate about building creative, innovative, and reliable digital solutions that help our clients grow online.
+                At <span className="brand-highlight">Bihar IT Solution</span>, we believe in delivering excellence in every project. Our team is passionate about building creative, innovative, and reliable digital solutions that help our clients grow online.
               </p>
               <p className="section-description">
                 We specialize in creating modern, responsive websites that not only look great but also perform exceptionally well. Our commitment to quality, innovation, and customer satisfaction sets us apart in the competitive web development industry.
@@ -193,44 +193,7 @@ function About() {
       </section>
 
       {/* Services Section */}
-      <section className="services-section section">
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title">Our Services</h2>
-            <p className="section-subtitle">
-              Comprehensive web development services tailored to your business needs
-            </p>
-          </div>
-          <div className="services-grid">
-            {services.map((service, index) => (
-              <div key={service.title} className={`service-card ${isVisible ? 'animate-in' : ''}`} style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className="service-header">
-                  <div className="service-icon" style={{ background: `${service.color}20`, color: service.color }}>
-                    <span>{service.icon}</span>
-                  </div>
-                </div>
-                <div className="service-content">
-                  <h3 className="service-title" style={{ color: service.color }}>
-                    {service.title}
-                  </h3>
-                  <p className="service-description">{service.description}</p>
-                  <div className="service-features">
-                    <ul>
-                      {service.features.map((feature, idx) => (
-                        <li key={idx}>
-                          <span className="feature-check" style={{ color: service.color }}>✓</span>
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-                <div className="service-highlight" style={{ background: service.color }}></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+    
 
       {/* Journey Timeline */}
       <section className="journey-section section">
@@ -297,64 +260,7 @@ function About() {
       </section>
 
       {/* Team Section */}
-      <section className="team-overview section">
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title">Our Talented Team</h2>
-            <p className="section-subtitle">
-              Meet the talented professionals behind Custom Web who make your projects successful
-            </p>
-          </div>
-          <div className="team-grid">
-            {team.map((member, index) => (
-              <div key={member.name} className={`team-card ${isVisible ? 'animate-in' : ''}`} style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className="team-card-header">
-                  <div className="team-avatar" style={{ backgroundColor: `${member.color}20`, borderColor: member.color }}>
-                    <span>{member.name.split(' ').map(n => n[0]).join('')}</span>
-                  </div>
-                  <div className="team-role-badge" style={{ backgroundColor: member.color }}>
-                    {member.role}
-                  </div>
-                </div>
-                <div className="team-card-body">
-                  <h3 className="team-name" style={{ color: member.color }}>
-                    {member.name}
-                  </h3>
-                  <p className="team-bio">{member.description}</p>
-                  <div className="team-skills">
-                    <h4>Expertise:</h4>
-                    <div className="skills-grid">
-                      {member.skills.map((skill, idx) => (
-                        <span key={idx} className="skill-tag" style={{ backgroundColor: `${member.color}20`, color: member.color }}>
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="team-card-footer">
-                  <div className="team-stats">
-                    <div className="team-stat">
-                      <span className="stat-value">{member.experience}</span>
-                      <span className="stat-label">Experience</span>
-                    </div>
-                    <div className="team-stat">
-                      <span className="stat-value">{member.projects}</span>
-                      <span className="stat-label">Completed</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="team-cta">
-            <Link to="/team" className="btn btn-outline">
-              Meet Our Full Team
-              <span className="btn-icon">→</span>
-            </Link>
-          </div>
-        </div>
-      </section>
+   
 
       {/* CTA Section */}
       <section className="about-cta section">

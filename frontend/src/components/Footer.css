@@ -1,8 +1,8 @@
 /* Footer Styles */
 .footer {
   position: relative;
-  background: #0F0F23;
-  color: #ffffff;
+  background: var(--surface-2);
+  color: var(--text-invert);
   overflow: hidden;
 }
 
@@ -21,7 +21,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(168,85,247,0.1) 100%);
 }
 
 .footer-pattern {
@@ -76,7 +76,7 @@
 .logo-text {
   font-size: 1.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -138,7 +138,7 @@
   left: 0;
   width: 30px;
   height: 2px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--gradient-primary);
   border-radius: 1px;
 }
 
@@ -166,12 +166,13 @@
   left: -1rem;
   opacity: 0;
   transition: all 0.3s ease;
-  color: #667eea;
+  color: var(--primary);
 }
 
 .footer-link:hover {
-  color: #667eea;
+  color: var(--primary);
   padding-left: 1rem;
+  text-shadow: 0 0 6px rgba(165, 180, 252, 0.25);
 }
 
 .footer-link:hover::before {
@@ -205,7 +206,7 @@
 
 .contact-label {
   font-size: 0.85rem;
-  color: #667eea;
+  color: var(--primary);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -219,7 +220,7 @@
 }
 
 .contact-value:hover {
-  color: #667eea;
+  color: var(--primary);
 }
 
 /* Newsletter Section */
@@ -279,17 +280,17 @@
 
 .newsletter-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--primary);
   background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
 }
 
 .newsletter-btn {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+  background: var(--brand-yellow, #ffcc00);
+  color: #111827;
   border: none;
-  border-radius: 8px;
+  border-radius: 20px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -301,7 +302,7 @@
 
 .newsletter-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.25);
 }
 
 .newsletter-btn:disabled {
@@ -313,7 +314,7 @@
   width: 20px;
   height: 20px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid #ffffff;
+  border-top: 2px solid var(--text-invert);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -351,8 +352,8 @@
 }
 
 .radio-option input[type="radio"]:checked + .radio-custom {
-  border-color: #667eea;
-  background: #667eea;
+  border-color: var(--primary);
+  background: var(--primary);
 }
 
 .radio-option input[type="radio"]:checked + .radio-custom::after {
@@ -407,7 +408,7 @@
 }
 
 .brand-name {
-  color: #667eea;
+  color: var(--primary);
   font-weight: 600;
 }
 
@@ -424,7 +425,7 @@
 }
 
 .footer-bottom-link:hover {
-  color: #667eea;
+  color: #a5b4fc;
 }
 
 /* Responsive Design */

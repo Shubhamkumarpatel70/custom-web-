@@ -18,6 +18,7 @@ function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,8 +33,42 @@ function Navbar() {
     setIsMobileMenuOpen(false);
   }, [location]);
 
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isMobileMenuOpen) {
+        toggleMobileMenu();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isMobileMenuOpen]);
+
   const toggleMobileMenu = () => {
+    if (isAnimating) return;
+    
+    setIsAnimating(true);
     setIsMobileMenuOpen(!isMobileMenuOpen);
+    
+    // Reset animation flag after transition completes
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 400);
   };
 
   const handleLogout = () => {
@@ -52,12 +87,12 @@ function Navbar() {
 
   return (
     <>
-      <nav className={`modern-navbar ${isScrolled ? 'scrolled' : ''}`} aria-label="Main Navigation">
+      <nav className={`modern-navbar ${isScrolled ? 'scrolled' : ''} ${isMobileMenuOpen ? 'menu-open' : ''}`} aria-label="Main Navigation">
         <div className="container">
           <div className="navbar-content">
             {/* Logo */}
-            <Link to="/" className="navbar-logo" aria-label="Home">
-              <span className="logo-text">CUSTOM WEB</span>
+            <Link to="/" className="navbar-logo" aria-label="Home" title="Bihar IT Solution">
+              <span className="logo-text">BIS</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -183,13 +218,13 @@ function Navbar() {
       {/* Navbar Styles */}
       <style jsx>{`
         :root {
-          --primary: #6366f1;
-          --primary-dark: #4f46e5;
-          --secondary: #06b6d4;
-          --accent: #f59e0b;
-          --dark: #1e293b;
+          --primary: #0ea5e9; /* sky-500 */
+          --primary-dark: #0369a1; /* sky-700 */
+          --secondary: #22c55e; /* emerald-500 */
+          --accent: #38bdf8; /* sky-400 */
+          --dark: #0b1220; /* deeper navy for navbar bg */
           --light: #f8fafc;
-          --bg: #f1f5f9;
+          --bg: #0f172a; /* slate-900 */
           --error: #ef4444;
           --success: #10b981;
         }
@@ -199,16 +234,25 @@ function Navbar() {
           top: 0;
           left: 0;
           right: 0;
-          background: rgba(15, 23, 42, 0.95);
+          background: transparent;
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
-          z-index: 1000;
+          z-index: 2000;
           transition: all 0.3s ease;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          border-bottom: none;
+          border-radius: 20px;
+          overflow: visible;
+          margin: 0.5rem 0.75rem;
+        }
+
+        .modern-navbar.menu-open {
+          border-radius: 0;
+          margin: 0;
         }
         
         .modern-navbar.scrolled {
-          background: rgba(15, 23, 42, 0.98);
+          background: linear-gradient(180deg, rgba(11, 18, 32, 0.98) 0%, rgba(11, 18, 32, 0.92) 100%);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
           box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
         
@@ -236,7 +280,7 @@ function Navbar() {
         }
         
         .logo-text {
-          background: linear-gradient(90deg, var(--primary), var(--accent));
+          background: linear-gradient(90deg, var(--primary), var(--primary-dark));
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -264,10 +308,12 @@ function Navbar() {
           position: absolute;
           bottom: 0;
           left: 0;
-          width: 0;
+          width: 100%;
           height: 2px;
           background: linear-gradient(90deg, var(--primary), var(--accent));
-          transition: width 0.3s ease;
+          transform: scaleX(0);
+          transform-origin: left;
+          transition: transform 0.25s ease;
         }
         
         .nav-link:hover,
@@ -277,7 +323,7 @@ function Navbar() {
         
         .nav-link.active::after,
         .nav-link:hover::after {
-          width: 100%;
+          transform: scaleX(1);
         }
         
         .navbar-auth {
@@ -426,35 +472,68 @@ function Navbar() {
         .mobile-menu-btn {
           display: none;
           flex-direction: column;
-          justify-content: space-between;
-          width: 2rem;
-          height: 1.5rem;
-          background: transparent;
-          border: none;
+          justify-content: center;
+          align-items: center;
+          width: 2.5rem;
+          height: 2.5rem;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 8px;
           cursor: pointer;
           padding: 0;
           z-index: 1100;
+          transition: all 0.3s ease;
+          position: relative;
+        }
+        
+        .mobile-menu-btn:hover {
+          background: rgba(255, 255, 255, 0.15);
+          border-color: rgba(255, 255, 255, 0.3);
+          transform: scale(1.05);
         }
         
         .mobile-menu-btn span {
           display: block;
-          width: 100%;
+          width: 1.25rem;
           height: 2px;
           background: var(--light);
-          border-radius: 1px;
-          transition: all 0.3s ease;
+          border-radius: 2px;
+          transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          position: absolute;
+        }
+        
+        .mobile-menu-btn span:nth-child(1) {
+          top: 0.625rem;
+        }
+        
+        .mobile-menu-btn span:nth-child(2) {
+          top: 1.125rem;
+        }
+        
+        .mobile-menu-btn span:nth-child(3) {
+          top: 1.625rem;
+        }
+        
+        .mobile-menu-btn.active {
+          background: rgba(239, 68, 68, 0.1);
+          border-color: rgba(239, 68, 68, 0.3);
         }
         
         .mobile-menu-btn.active span:nth-child(1) {
-          transform: translateY(0.5rem) rotate(45deg);
+          top: 1.125rem;
+          transform: rotate(45deg);
+          background: #ef4444;
         }
         
         .mobile-menu-btn.active span:nth-child(2) {
           opacity: 0;
+          transform: scale(0);
         }
         
         .mobile-menu-btn.active span:nth-child(3) {
-          transform: translateY(-0.5rem) rotate(-45deg);
+          top: 1.125rem;
+          transform: rotate(-45deg);
+          background: #ef4444;
         }
         
         .mobile-menu-overlay {
@@ -464,17 +543,19 @@ function Navbar() {
           right: 0;
           bottom: 0;
           background: rgba(0, 0, 0, 0.8);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-          z-index: 1000;
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          z-index: 2100;
           opacity: 0;
           visibility: hidden;
-          transition: all 0.3s ease;
+          transition: opacity 0.3s ease, visibility 0.3s ease;
+          pointer-events: none;
         }
         
         .mobile-menu-overlay.active {
           opacity: 1;
           visibility: visible;
+          pointer-events: auto;
         }
         
         .mobile-menu-content {
@@ -482,13 +563,16 @@ function Navbar() {
           top: 0;
           right: 0;
           width: 100%;
-          max-width: 20rem;
+          max-width: 22rem;
           height: 100vh;
-          background: var(--dark);
+          background: linear-gradient(180deg, rgba(11, 18, 32, 0.98) 0%, rgba(15, 23, 42, 0.95) 100%);
+          border-left: 1px solid rgba(255, 255, 255, 0.1);
           padding: 6rem 2rem 2rem;
           overflow-y: auto;
           transform: translateX(100%);
-          transition: transform 0.3s ease;
+          transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+          z-index: 2200;
         }
         
         .mobile-menu-overlay.active .mobile-menu-content {
@@ -498,21 +582,50 @@ function Navbar() {
         .mobile-nav-links {
           display: flex;
           flex-direction: column;
-          gap: 1.5rem;
-          margin-bottom: 2rem;
+          gap: 0.5rem;
+          margin-bottom: 3rem;
         }
         
         .mobile-nav-link {
           color: var(--light);
-          font-size: 1.25rem;
+          font-size: 1.125rem;
           font-weight: 500;
           text-decoration: none;
-          transition: color 0.2s ease;
+          padding: 1rem 1.5rem;
+          border-radius: 12px;
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+          border: 1px solid transparent;
+        }
+        
+        .mobile-nav-link::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+          transition: left 0.5s ease;
+        }
+        
+        .mobile-nav-link:hover::before {
+          left: 100%;
         }
         
         .mobile-nav-link:hover,
         .mobile-nav-link.active {
           color: var(--accent);
+          background: rgba(56, 189, 248, 0.1);
+          border-color: rgba(56, 189, 248, 0.3);
+          transform: translateX(8px);
+        }
+        
+        .mobile-nav-link.active {
+          background: rgba(34, 197, 94, 0.15);
+          border-color: rgba(34, 197, 94, 0.4);
+          color: var(--secondary);
         }
         
         .mobile-auth {
@@ -530,6 +643,41 @@ function Navbar() {
         .mobile-auth-buttons .btn {
           width: 100%;
           justify-content: center;
+          padding: 0.875rem 1.5rem;
+          font-size: 1rem;
+          border-radius: 10px;
+        }
+        
+        .mobile-auth .user-btn {
+          width: 100%;
+          justify-content: center;
+          padding: 1rem 1.5rem;
+          border-radius: 10px;
+          margin-bottom: 1rem;
+        }
+        
+        .mobile-auth .user-dropdown {
+          position: static;
+          width: 100%;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+          margin-top: 0.5rem;
+          transform: none;
+          opacity: 1;
+          visibility: visible;
+        }
+        
+        .mobile-auth .dropdown-item {
+          color: var(--light);
+          padding: 0.875rem 1rem;
+          border-radius: 8px;
+          margin: 0.25rem;
+        }
+        
+        .mobile-auth .dropdown-item:hover {
+          background: rgba(255, 255, 255, 0.1);
+          color: var(--accent);
         }
         
         @media (max-width: 1024px) {
@@ -540,6 +688,10 @@ function Navbar() {
           
           .mobile-menu-btn {
             display: flex;
+          }
+          
+          .modern-navbar {
+            margin: 0.25rem 0.5rem;
           }
         }
         

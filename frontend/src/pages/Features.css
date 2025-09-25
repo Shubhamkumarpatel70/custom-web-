@@ -1,8 +1,8 @@
 /* Features Page Styles */
 .features-page {
   min-height: 100vh;
-  background: #0F0F23;
-  color: #ffffff;
+  background: var(--bg);
+  color: var(--text-invert);
   padding-top: 80px; /* Add top padding since hero section is removed */
 }
 
@@ -17,28 +17,7 @@
   padding: 0 2rem;
 }
 
-.section-header {
-  text-align: center;
-  margin-bottom: 4rem;
-}
-
-.section-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.section-subtitle {
-  font-size: 1.1rem;
-  color: #a0a0a0;
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
+/* Section headers are standardized in global index.css (.section-header, .section-title, .section-subtitle) */
 
 /* Features Section */
 .features-section {
@@ -294,7 +273,7 @@
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -314,50 +293,7 @@
   flex-wrap: wrap;
 }
 
-/* Button Styles */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-}
-
-.btn-outline {
-  background: transparent;
-  color: #667eea;
-  border: 2px solid #667eea;
-}
-
-.btn-outline:hover {
-  background: #667eea;
-  color: white;
-  transform: translateY(-2px);
-}
-
-.btn-icon {
-  transition: transform 0.3s ease;
-}
-
-.btn:hover .btn-icon {
-  transform: translateX(3px);
-}
+/* Button styles are standardized globally; local overrides removed */
 
 /* Animations */
 @keyframes fadeInUp {

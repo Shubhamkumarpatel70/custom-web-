@@ -38,41 +38,47 @@ const Footer = () => {
 
   const currentYear = new Date().getFullYear();
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <footer className="footer">
+
       <div className="footer-background">
         <div className="footer-gradient"></div>
         <div className="footer-pattern"></div>
       </div>
 
       <div className="footer-content">
+
         <div className="container">
           <div className="footer-grid">
             {/* Company Info */}
             <div className="footer-section company-info">
-              <div className="footer-logo">
+              <div className="footer-logo" title="Bihar IT Solution">
                 <span className="logo-icon">🌐</span>
-                <span className="logo-text">Custom Web</span>
+                <span className="logo-text">BIS</span>
               </div>
               <p className="company-description">
                 We create amazing digital experiences with modern web technologies. 
                 From responsive websites to custom applications, we help businesses 
                 grow online with innovative solutions.
               </p>
-              <div className="social-links">
-                <a href="#" className="social-link" aria-label="Facebook">
+              <div className="social-links" aria-label="Social media links">
+                <a href="#" className="social-link" aria-label="Facebook" title="Facebook">
                   <span>📘</span>
                 </a>
-                <a href="#" className="social-link" aria-label="Twitter">
+                <a href="#" className="social-link" aria-label="Twitter" title="Twitter/X">
                   <span>🐦</span>
                 </a>
-                <a href="#" className="social-link" aria-label="LinkedIn">
+                <a href="#" className="social-link" aria-label="LinkedIn" title="LinkedIn">
                   <span>💼</span>
                 </a>
-                <a href="#" className="social-link" aria-label="Instagram">
+                <a href="#" className="social-link" aria-label="Instagram" title="Instagram">
                   <span>📷</span>
                 </a>
-                <a href="#" className="social-link" aria-label="GitHub">
+                <a href="#" className="social-link" aria-label="GitHub" title="GitHub">
                   <span>🐙</span>
                 </a>
               </div>
@@ -114,28 +120,28 @@ const Footer = () => {
                   <span className="contact-icon">📍</span>
                   <div className="contact-details">
                     <span className="contact-label">Address</span>
-                    <span className="contact-value">Mumbai, Maharashtra, India</span>
+                    <span className="contact-value">Bihar, Patna, India</span>
                   </div>
                 </div>
                 <div className="contact-item">
                   <span className="contact-icon">📧</span>
                   <div className="contact-details">
                     <span className="contact-label">Email</span>
-                    <a href="mailto:info@customweb.com" className="contact-value">info@customweb.com</a>
+                    <a href="mailto:official.customweb@gmail.com" className="contact-value">official.customweb@gmail.com</a>
                   </div>
                 </div>
                 <div className="contact-item">
                   <span className="contact-icon">📞</span>
                   <div className="contact-details">
                     <span className="contact-label">Phone</span>
-                    <a href="tel:+919876543210" className="contact-value">+91 98765 43210</a>
+                    <a href="tel:+919876543210" className="contact-value">+91 9027880288</a>
                   </div>
                 </div>
                 <div className="contact-item">
                   <span className="contact-icon">🕒</span>
                   <div className="contact-details">
                     <span className="contact-label">Working Hours</span>
-                    <span className="contact-value">Mon - Fri: 9AM - 6PM</span>
+                    <span className="contact-value">Mon - Fri: 11AM - 4PM</span>
                   </div>
                 </div>
               </div>
@@ -161,16 +167,17 @@ const Footer = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="newsletter-input"
                     required
-                  />
+                    aria-label="Enter your email address"
+                    />
                   <button type="submit" className="newsletter-btn" disabled={isSubmitting}>
                     {isSubmitting ? (
-                      <span className="spinner"></span>
+                      <span className="spinner" aria-label="Loading" role="status"></span>
                     ) : (
                       <span>Subscribe</span>
                     )}
                   </button>
                 </div>
-                <div className="newsletter-options">
+                <div className="newsletter-options" aria-label="Subscription options">
                   <label className="radio-option">
                     <input
                       type="radio"
@@ -178,6 +185,7 @@ const Footer = () => {
                       value="subscribe"
                       checked={subscribeOption === 'subscribe'}
                       onChange={(e) => setSubscribeOption(e.target.value)}
+                      aria-label="Subscribe to our newsletter"
                     />
                     <span className="radio-custom"></span>
                     <span>Subscribe</span>
@@ -189,39 +197,26 @@ const Footer = () => {
                       value="unsubscribe"
                       checked={subscribeOption === 'unsubscribe'}
                       onChange={(e) => setSubscribeOption(e.target.value)}
+                      aria-label="Unsubscribe from our newsletter"
                     />
                     <span className="radio-custom"></span>
                     <span>Unsubscribe</span>
                   </label>
                 </div>
                 {newsletterMsg && (
-                  <div className={`newsletter-message ${newsletterMsg.includes('Thank you') || newsletterMsg.includes('unsubscribed') ? 'success' : 'error'}`}>
+                  <div className={`newsletter-message ${newsletterMsg.includes('Thank you') || newsletterMsg.includes('unsubscribed') ? 'success' : 'error'}`} role="status" aria-live="polite">
                     {newsletterMsg}
                   </div>
                 )}
               </form>
             </div>
           </div>
+
         </div>
+
       </div>
 
-      {/* Footer Bottom */}
-      <div className="footer-bottom">
-        <div className="container">
-          <div className="footer-bottom-content">
-            <div className="copyright">
-              <p>&copy; {currentYear} <span className="brand-name">Custom Web</span>. All rights reserved.</p>
-            </div>
-            <div className="footer-bottom-links">
-              <Link to="/privacy" className="footer-bottom-link">Privacy Policy</Link>
-              <Link to="/terms" className="footer-bottom-link">Terms of Service</Link>
-              <Link to="/cookies" className="footer-bottom-link">Cookie Policy</Link>
-            </div>
-          </div>
-        </div>
-      </div>
     </footer>
   );
 };
-
 export default Footer;

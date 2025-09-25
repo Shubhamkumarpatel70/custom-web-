@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from '../axios';
 import './Features.css';
 
 const defaultFeatures = [
@@ -146,38 +145,11 @@ const comparison = [
 
 function Features() {
   const [isVisible, setIsVisible] = useState(false);
-  const [features, setFeatures] = useState(defaultFeatures);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [features] = useState(defaultFeatures);
 
   useEffect(() => {
     setIsVisible(true);
-    fetchFeatures();
   }, []);
-
-  const fetchFeatures = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get('/api/auth/features');
-      if (response.data.features && response.data.features.length > 0) {
-        // Transform API data to match the expected format
-        const transformedFeatures = response.data.features.map(feature => ({
-          title: feature.title,
-          desc: feature.description,
-          icon: feature.icon,
-          color: feature.color || '#667eea',
-          details: feature.benefits || ['Feature included', 'Professional quality', 'Custom implementation']
-        }));
-        setFeatures(transformedFeatures);
-      }
-    } catch (err) {
-      console.error('Error fetching features:', err);
-      setError('Failed to load features');
-      // Keep using default features data
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="features-page">
@@ -190,19 +162,6 @@ function Features() {
               Comprehensive features designed to give you the best web development experience
             </p>
           </div>
-          {loading && (
-            <div className="loading-container">
-              <div className="loading-spinner"></div>
-              <p>Loading features...</p>
-            </div>
-          )}
-          
-          {error && (
-            <div className="error-message">
-              <p>{error}</p>
-            </div>
-          )}
-          
           <div className="features-grid">
             {features.map((feature, index) => (
               <div 

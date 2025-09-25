@@ -17,7 +17,7 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-xl font-semibold mb-4 text-emerald-400">1. Acceptance of Terms</h2>
             <p className="text-gray-300">
-              By accessing and using Custom Web services, you accept and agree to be bound by the terms 
+              By accessing and using Custom Web  services, you accept and agree to be bound by the terms 
               and provision of this agreement. If you do not agree to abide by the above, please do not 
               use this service.
             </p>

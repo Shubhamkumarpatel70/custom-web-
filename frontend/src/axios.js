@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const instance = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'https://custom-web-backend.onrender.com',
-  timeout: 15000, // Increased timeout to 15 seconds
+  timeout: 30000, // Increased timeout to 30 seconds
   headers: {
     'Content-Type': 'application/json',
   },
@@ -46,7 +46,8 @@ instance.interceptors.response.use(
       console.log('Request timeout, retrying...');
       
       // Retry once for timeout errors
-      if (error.config && !error.config._retry) {
+      const isLoginRequest = typeof error.config?.url === 'string' && error.config.url.includes('/api/auth/login');
+      if (error.config && !error.config._retry && !isLoginRequest) {
         error.config._retry = true;
         console.log('Retrying request:', error.config.url);
         return instance.request(error.config);

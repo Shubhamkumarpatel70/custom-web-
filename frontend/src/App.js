@@ -1,7 +1,8 @@
-import React, { useEffect, useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect, useContext, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import SplashScreen from './components/SplashScreen';
 import Home from './pages/Home';
 import About from './pages/About';
 import Plans from './pages/Plans';
@@ -56,6 +57,30 @@ function App() {
   return (
     <Router>
       <Navbar />
+      <AppContent />
+      <Footer />
+    </Router>
+  );
+}
+
+function AppContent() {
+  const location = useLocation();
+  const [showSplash, setShowSplash] = useState(true);
+
+  // Show splash only on home route for 5 seconds
+  useEffect(() => {
+    if (location.pathname === '/') {
+      setShowSplash(true);
+      const t = setTimeout(() => setShowSplash(false), 5000);
+      return () => clearTimeout(t);
+    } else {
+      setShowSplash(false);
+    }
+  }, [location.pathname]);
+
+  return (
+    <>
+      {showSplash && <SplashScreen />}
       <main style={{ paddingTop: '70px', minHeight: 'calc(100vh - 70px)' }}>
         <Routes>
           <Route path='/' element={<Home />} />
@@ -87,8 +112,7 @@ function App() {
           <Route path='/support-chat/:complaintId' element={<SupportChat />} />
         </Routes>
       </main>
-      <Footer />
-    </Router>
+    </>
   );
 }
 
