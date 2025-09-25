@@ -44,7 +44,6 @@
   opacity: 0.1;
   animation: float 15s ease-in-out infinite;
 }
-
 .shape-1 { width: 100px; height: 100px; top: 10%; left: 10%; animation-delay: 0s; }
 .shape-2 { width: 150px; height: 150px; top: 60%; left: 80%; animation-delay: -5s; }
 .shape-3 { width: 80px; height: 80px; top: 80%; left: 20%; animation-delay: -10s; }
@@ -52,9 +51,11 @@
 
 .hero-content {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  grid-template-columns: 1fr; /* single column, full-width text */
+  gap: 2.5rem;
   align-items: center;
+  justify-items: center;
+  text-align: center;
   position: relative;
   z-index: 2;
 }
@@ -63,11 +64,68 @@
   opacity: 0;
   transform: translateY(30px);
   transition: all 0.8s ease;
+  max-width: 960px; /* keep readable width while being centered */
+  margin: 0 auto;
 }
 
 .hero-text.animate-in {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Right map visual */
+.hero-map {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease 0.4s;
+  display: flex;
+  justify-content: center;
+  justify-self: end;            /* stick to the right in the grid */
+}
+
+.hero-map.animate-in { opacity: 1; transform: translateY(0); }
+
+.map-frame {
+  position: relative;
+  padding: 1rem;
+  border: 2px dashed rgba(226, 232, 240, 0.5); /* dotted/dashed frame */
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.4);
+  animation: frameGlow 4s ease-in-out infinite;
+}
+
+/* subtle dotted matrix behind the outline */
+.map-frame::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  background-image:
+    radial-gradient(rgba(148, 163, 184, 0.35) 1px, transparent 1px);
+  background-size: 10px 10px;
+  border-radius: 12px;
+  pointer-events: none;
+  mask: linear-gradient(#000, #000); /* keep consistent opacity */
+}
+
+.map-image {
+  position: relative;
+  display: block;
+  width: min(320px, 45vw);
+  height: auto;
+  filter: brightness(1.1) contrast(1.05);
+  mix-blend-mode: screen;
+  transform-origin: 50% 50%;
+  animation: spinSlow 14s linear infinite; /* subtle 360° rotation */
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes frameGlow {
+  0%, 100% { box-shadow: 0 0 0 rgba(99, 102, 241, 0.0), 0 0 0 rgba(16, 185, 129, 0.0); }
+  50% { box-shadow: 0 0 18px rgba(99, 102, 241, 0.25), 0 0 26px rgba(16, 185, 129, 0.18); }
 }
 
 .badge {

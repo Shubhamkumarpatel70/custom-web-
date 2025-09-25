@@ -7,7 +7,6 @@ import './Dashboard.css';
 function Dashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,25 +44,9 @@ function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      {/* Mobile Overlay */}
-      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)}></div>}
-      
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="mobile-menu-btn"
-        aria-label="Toggle sidebar"
-      >
-        <span className={`hamburger ${sidebarOpen ? 'active' : ''}`}>
-          <span></span>
-          <span></span>
-          <span></span>
-        </span>
-      </button>
-
       {/* Sidebar */}
-      <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <Sidebar onLogout={handleLogout} />
+      <aside className={`dashboard-sidebar`}>
+        <Sidebar onLogout={handleLogout} user={user} />
       </aside>
 
       {/* Main Content */}

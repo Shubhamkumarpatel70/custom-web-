@@ -87,7 +87,7 @@ function Navbar() {
 
   return (
     <>
-      <nav className={`modern-navbar ${isScrolled ? 'scrolled' : ''} ${isMobileMenuOpen ? 'menu-open' : ''}`} aria-label="Main Navigation">
+      <nav className={`modern-navbar ${isScrolled ? 'scrolled' : ''}`} aria-label="Main Navigation">
         <div className="container">
           <div className="navbar-content">
             {/* Logo */}
@@ -237,17 +237,12 @@ function Navbar() {
           background: transparent;
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
-          z-index: 2000;
+          z-index: 2000; /* sit above page content */
           transition: all 0.3s ease;
           border-bottom: none;
           border-radius: 20px;
-          overflow: visible;
+          overflow: visible; /* do not clip overlay or drawer */
           margin: 0.5rem 0.75rem;
-        }
-
-        .modern-navbar.menu-open {
-          border-radius: 0;
-          margin: 0;
         }
         
         .modern-navbar.scrolled {
@@ -545,17 +540,17 @@ function Navbar() {
           background: rgba(0, 0, 0, 0.8);
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
-          z-index: 2100;
+          z-index: 2100; /* above navbar */
           opacity: 0;
           visibility: hidden;
+          pointer-events: none; /* prevent blocking clicks when hidden */
           transition: opacity 0.3s ease, visibility 0.3s ease;
-          pointer-events: none;
         }
         
         .mobile-menu-overlay.active {
           opacity: 1;
           visibility: visible;
-          pointer-events: auto;
+          pointer-events: auto; /* enable interactions when open */
         }
         
         .mobile-menu-content {
@@ -572,7 +567,6 @@ function Navbar() {
           transform: translateX(100%);
           transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
-          z-index: 2200;
         }
         
         .mobile-menu-overlay.active .mobile-menu-content {
@@ -691,7 +685,11 @@ function Navbar() {
           }
           
           .modern-navbar {
-            margin: 0.25rem 0.5rem;
+            margin: 0;                /* remove outer margins so it spans fully */
+            border-radius: 0;         /* flush edges to avoid visible gaps */
+          }
+          .container {
+            padding: 0 0.75rem;       /* tighter padding so content fits better */
           }
         }
         

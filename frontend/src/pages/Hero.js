@@ -1,12 +1,22 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Hero = () => {
   const textRef = useRef(null);
-  const mapRef = useRef(null);
+  const [typed, setTyped] = useState('');
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const phrases = [
+    'Modern Web Development',
+    'E‑Commerce Solutions',
+    'Custom Mobile Apps',
+    'Cloud & DevOps',
+    'Support for Bihar Startups'
+  ];
 
   useEffect(() => {
-    const targets = [textRef.current, mapRef.current];
+    const targets = [textRef.current];
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -20,6 +30,27 @@ const Hero = () => {
     targets.forEach((el) => el && observer.observe(el));
     return () => observer.disconnect();
   }, []);
+
+  // Typewriter effect
+  useEffect(() => {
+    const current = phrases[phraseIndex % phrases.length];
+    const speed = isDeleting ? 50 : 100; // typing speed
+    const timer = setTimeout(() => {
+      const nextText = isDeleting
+        ? current.substring(0, typed.length - 1)
+        : current.substring(0, typed.length + 1);
+      setTyped(nextText);
+
+      if (!isDeleting && nextText === current) {
+        // pause before deleting
+        setTimeout(() => setIsDeleting(true), 900);
+      } else if (isDeleting && nextText === '') {
+        setIsDeleting(false);
+        setPhraseIndex((i) => (i + 1) % phrases.length);
+      }
+    }, speed);
+    return () => clearTimeout(timer);
+  }, [typed, isDeleting, phraseIndex, phrases]);
   return (
     <section
       id="hero"
@@ -41,13 +72,21 @@ const Hero = () => {
       <div className="container">
         <div className="hero-content">
           <div className="hero-text" ref={textRef}>
-            <div className="badge" aria-label="Brand">Bihar IT Solution</div>
+            <div className="badge" aria-label="Brand">BIHAR IT SOLUTION</div>
             <h1 className="hero-title" id="hero-title">
-              Transforming Bihar with <span className="gradient-text">IT Solutions</span>
+              <span className="hero-line1">Transforming Bihar with</span>
+              <span className="hero-line2">
+                <span className="glass-title gradient-text">BIHAR IT SOLUTION</span>
+              </span>
             </h1>
             <p className="hero-subtitle" id="hero-subtitle">
               Web | Mobile | Cloud | Consultancy
             </p>
+            <div className="typing-line" aria-live="polite">
+              <span className="typing-prefix">We build</span>
+              <span className="typing-text"> {typed}</span>
+              <span className="typing-caret" aria-hidden="true">|</span>
+            </div>
             <div className="hero-actions">
               <Link to="/services" className="btn btn-secondary" aria-label="Explore our services">
                 Explore Services
@@ -56,17 +95,6 @@ const Hero = () => {
                 Contact Us <span className="btn-icon" aria-hidden="true">→</span>
               </Link>
             </div>
-          </div>
-
-          {/* Right-side map-styled Bihar (accurate outline SVG) */}
-          <div className="hero-map" ref={mapRef} aria-hidden="true">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Bihar_outline_shape.svg"
-              alt="Bihar outline map"
-              loading="lazy"
-              decoding="async"
-              style={{ maxWidth: '320px', width: '100%', height: 'auto' }}
-            />
           </div>
         </div>
       </div>

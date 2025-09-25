@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from '../axios';
 import './Footer.css';
 
 const Footer = () => {
@@ -51,6 +52,7 @@ const Footer = () => {
       </div>
 
       <div className="footer-content">
+
 
         <div className="container">
           <div className="footer-grid">

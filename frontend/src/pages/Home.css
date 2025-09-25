@@ -122,9 +122,11 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr; /* single column, full-width text */
   gap: 2rem;
   align-items: center;
+  justify-items: center;
+  text-align: center;
   width: 100%;
 }
 
@@ -132,6 +134,8 @@
   opacity: 0;
   transform: translateY(30px);
   transition: all 0.8s ease;
+  max-width: 960px; /* readable width when centered */
+  margin: 0 auto;
 }
 
 .hero-text.animate-in {
@@ -157,6 +161,30 @@
   margin-bottom: 1.5rem;
 }
 
+/* First line: keep on one line */
+.hero-line1 {
+  display: block;
+  white-space: nowrap;
+}
+
+/* Second line: stacked below */
+.hero-line2 {
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* Glassy transparent container for the second line */
+.glass-title {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
 .gradient-text {
   background: none;
   -webkit-background-clip: initial;
@@ -176,6 +204,44 @@
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+  justify-content: center; /* center on all sizes */
+}
+
+/* Enhance hero buttons without affecting global styles */
+.hero-actions .btn {
+  padding: 0.9rem 1.75rem;
+  border-radius: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  min-width: 180px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+
+.hero-actions .btn:focus-visible {
+  outline: 3px solid rgba(102, 126, 234, 0.7);
+  outline-offset: 2px;
+}
+
+.hero-actions .btn-primary {
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.35);
+}
+
+.hero-actions .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(102, 126, 234, 0.45);
+}
+
+.hero-actions .btn-secondary {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.hero-actions .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
 }
 
 .hero-visual {

@@ -257,6 +257,51 @@
   transform: translateX(-50%);
 }
 
+/* Central node per item */
+.timeline-node {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ffffff 0%, #a5b4fc 40%, #7c3aed 100%);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15), 0 4px 14px rgba(0,0,0,0.25);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  animation: popIn 0.4s ease both;
+}
+
+/* Connector line from spine to the card */
+.timeline-connector {
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.4), rgba(124,58,237,0.6));
+  transform: translateY(-50%);
+  z-index: 1;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+/* Left side items (odd) connect to the right from center */
+.timeline-item:nth-child(odd) .timeline-connector {
+  left: 50%;
+  width: calc(50% - 140px); /* reaches toward the card */
+}
+
+/* Right side items (even) connect to the left from center */
+.timeline-item:nth-child(even) .timeline-connector {
+  right: 50%;
+  width: calc(50% - 140px);
+  background: linear-gradient(270deg, rgba(255,255,255,0.4), rgba(124,58,237,0.6));
+}
+
+@keyframes popIn {
+  from { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+  to   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
 .timeline-item {
   position: relative;
   margin-bottom: 3rem;
@@ -596,6 +641,17 @@
   
   .timeline::before {
     left: 20px;
+  }
+  /* Align node and connector to the left spine on mobile */
+  .timeline-node {
+    left: 20px;
+    transform: translate(-50%, -50%);
+  }
+  .timeline-connector {
+    left: 20px;
+    right: auto;
+    width: 40px; /* short connector towards the card */
+    background: linear-gradient(90deg, rgba(255,255,255,0.4), rgba(124,58,237,0.6));
   }
   
   .timeline-item .timeline-content {

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import './Sidebar.css';
 
 const navItems = [
@@ -10,7 +11,46 @@ const navItems = [
   { to: '/dashboard/notifications', label: 'Notifications', icon: '🔔' },
 ];
 
-const Sidebar = ({ onLogout, isPlanExpired }) => (
+// Mobile bottom nav: exactly 5 items as requested
+const mobileNavItems = [
+  { to: '/dashboard', label: 'Home', icon: '🏠' },
+  { to: '/dashboard/support', label: 'Help', icon: '💬' },
+  { to: '/dashboard/subscription', label: 'Subscription', icon: '📦' },
+  { to: '/dashboard/purchases', label: 'Purchase', icon: '🛒' },
+  // Fifth item will be Logout button (🚪)
+];
+
+// Render bottom nav at document.body level to avoid being affected by parent transforms/overflow
+const MobileBottomNav = ({ user, onLogout }) => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!user || !mounted) return null;
+  return createPortal(
+    (
+      <nav className="mobile-bottom-nav">
+        {mobileNavItems.map(item => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end
+            className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}
+            tabIndex={0}
+          >
+            <span className="bottom-nav-icon">{item.icon}</span>
+            <span className="bottom-nav-label">{item.label}</span>
+          </NavLink>
+        ))}
+        <button className="bottom-nav-item logout" onClick={onLogout} tabIndex={0}>
+          <span className="bottom-nav-icon">🚪</span>
+          <span className="bottom-nav-label">Logout</span>
+        </button>
+      </nav>
+    ),
+    document.body
+  );
+};
+
+const Sidebar = ({ onLogout, isPlanExpired, user }) => (
   <>
     <div className="modern-sidebar">
       {/* Sidebar Header */}
@@ -27,14 +67,23 @@ const Sidebar = ({ onLogout, isPlanExpired }) => (
       {/* Navigation */}
       <nav className="sidebar-nav">
         {navItems.map(item => (
-          <NavLink key={item.to} to={item.to} className="nav-item" tabIndex={0}>
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
+            tabIndex={0}
+          >
             <span className="nav-icon">{item.icon}</span>
             <span className="nav-label">{item.label}</span>
             <span className="nav-indicator"></span>
           </NavLink>
         ))}
         {isPlanExpired && (
-          <NavLink to="/dashboard/expired" className="nav-item expired" tabIndex={0}>
+          <NavLink
+            to="/dashboard/expired"
+            className={({ isActive }) => `nav-item expired${isActive ? ' active' : ''}`}
+            tabIndex={0}
+          >
             <span className="nav-icon">⏰</span>
             <span className="nav-label">Plan Expired</span>
             <span className="nav-indicator"></span>
@@ -49,19 +98,8 @@ const Sidebar = ({ onLogout, isPlanExpired }) => (
       </button>
     </div>
 
-    {/* Mobile Bottom Nav */}
-    <nav className="mobile-bottom-nav">
-      {navItems.map(item => (
-        <NavLink key={item.to} to={item.to} className="bottom-nav-item" tabIndex={0}>
-          <span className="bottom-nav-icon">{item.icon}</span>
-          <span className="bottom-nav-label">{item.label}</span>
-        </NavLink>
-      ))}
-      <button className="bottom-nav-item logout" onClick={onLogout} tabIndex={0}>
-        <span className="bottom-nav-icon">🚪</span>
-        <span className="bottom-nav-label">Logout</span>
-      </button>
-    </nav>
+    {/* Mobile Bottom Nav - only when logged in */}
+    <MobileBottomNav user={user} onLogout={onLogout} />
   </>
 );
 

@@ -155,11 +155,17 @@ const Payment = () => {
 
   const totalAmount = Math.max(0, amount - discount);
 
-  // Generate UPI QR code data
+  // Generate UPI deep link for QR and intents
   const generateUPIQR = () => {
     if (!selectedPaymentOption) return '';
-    const upiData = `upi://pay?pa=${selectedPaymentOption.upiId}&pn=CustomWeb&am=${totalAmount}&cu=INR&tn=${planObj?.name} Plan Payment`;
-    return upiData;
+    const params = new URLSearchParams({
+      pa: selectedPaymentOption.upiId,          // payee address (UPI ID)
+      pn: 'CustomWeb',                          // payee name
+      am: String(totalAmount || 0),             // amount
+      cu: 'INR',                                // currency
+      tn: `${planObj?.name} Plan Payment`       // note
+    });
+    return `upi://pay?${params.toString()}`;
   };
 
   const copyToClipboard = async (text) => {
@@ -324,9 +330,12 @@ const Payment = () => {
                         <p className="text-gray-400 text-sm mb-2">Scan QR code to pay ₹{totalAmount}:</p>
                         <div className="bg-white p-4 rounded-lg flex justify-center">
                           <div className="text-center">
-                            <div className="w-40 h-40 bg-gray-200 rounded-lg flex items-center justify-center mb-2">
-                              <span className="text-gray-500 text-xs">QR Code for ₹{totalAmount}</span>
-                            </div>
+                            {/* QR image generated from the UPI deep link */}
+                            <img
+                              src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(generateUPIQR())}`}
+                              alt={`UPI QR for ₹${totalAmount}`}
+                              className="w-40 h-40 rounded-lg mb-2"
+                            />
                             <p className="text-xs text-gray-600">Scan with any UPI app</p>
                           </div>
                         </div>
@@ -341,6 +350,20 @@ const Payment = () => {
                           >
                             {copied ? 'Copied!' : 'Copy'}
                           </button>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                          <button
+                            onClick={() => copyToClipboard(generateUPIQR())}
+                            className="text-blue-400 hover:text-blue-300 text-xs"
+                          >
+                            {copied ? 'UPI Link Copied!' : 'Copy UPI Link'}
+                          </button>
+                          <a
+                            href={generateUPIQR()}
+                            className="text-emerald-400 hover:text-emerald-300 text-xs"
+                          >
+                            Open in UPI App
+                          </a>
                         </div>
                       </div>
                     </>

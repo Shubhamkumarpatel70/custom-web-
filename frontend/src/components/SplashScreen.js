@@ -6,13 +6,6 @@ function SplashScreen() {
     <div className="splash">
       <div className="splash-background" />
       <div className="splash-content">
-        <div className="splash-logo">
-          <img
-            className="splash-logo-img"
-            src={`${process.env.PUBLIC_URL}/assets/bis logo.jpg`}
-            alt="BIHAR IT SOLUTION logo"
-          />
-        </div>
         <h1 className="splash-title">Welcome To</h1>
         <div className="splash-brand">BIHAR IT SOLUTION</div>
         <p className="splash-subtitle">Crafting modern websites and digital experiences</p>

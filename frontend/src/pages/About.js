@@ -207,6 +207,9 @@ function About() {
           <div className="timeline">
             {highlights.map((highlight, index) => (
               <div key={highlight.year} className={`timeline-item ${isVisible ? 'animate-in' : ''}`} style={{ animationDelay: `${index * 0.2}s` }}>
+                {/* Central node and connector from the spine to the card */}
+                <span className="timeline-node" aria-hidden="true"></span>
+                <span className="timeline-connector" aria-hidden="true"></span>
                 <div className="timeline-content">
                   <div className="timeline-icon" style={{ background: highlight.color }}>
                     <span>{highlight.icon}</span>

@@ -17,9 +17,16 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Ensure no horizontal gutter */
+html, body, #root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Poppins', 'Roboto', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  background: #FFFFFF;
+  background: var(--surface-2);
   color: var(--text-main);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -108,6 +115,20 @@ a:hover {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 clamp(1rem, 5vw, 2rem);
+}
+
+/* Prevent right-side gutter on small screens */
+@media (max-width: 1024px) {
+  .container {
+    max-width: 100%;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  main {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
 }
 
 .container-fluid {
@@ -317,7 +338,7 @@ a:hover {
 }
 
 /* Navigation Styles */
-nav {
+nav:not(.mobile-bottom-nav) {
   background: rgba(35, 39, 47, 0.95) !important;
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
